@@ -22,8 +22,12 @@ export async function POST(req: NextRequest) {
   const arrayBuffer = await file.arrayBuffer()
   const base64 = Buffer.from(arrayBuffer).toString("base64")
 
+  // UUID key prevents path traversal and makes URLs unguessable.
+  // TODO: upgrade to access:"private" + signed-URL proxy route for production multi-user deployments.
+  const blobKey = `pdfs/${session.user.id}/${crypto.randomUUID()}.pdf`
+
   const [blob, extracted] = await Promise.all([
-    put(`pdfs/${session.user.id}/${Date.now()}-${file.name}`, file, { access: "public" }),
+    put(blobKey, file, { access: "public" }),
     extractBillFromPdf(base64),
   ])
 
