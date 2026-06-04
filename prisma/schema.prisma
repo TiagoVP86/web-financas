@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String      @id @default(cuid())
+  email       String      @unique
+  password    String
+  name        String?
+  createdAt   DateTime    @default(now())
+  lancamentos Lancamento[]
+  categorias  Categoria[]
+  analisesIA  AnaliseIA[]
+}
+
+model Categoria {
+  id          String      @id @default(cuid())
+  nome        String
+  cor         String
+  icone       String?
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lancamentos Lancamento[]
+
+  @@unique([nome, userId])
+}
+
+model Lancamento {
+  id           String     @id @default(cuid())
+  descricao    String
+  valor        Decimal    @db.Decimal(10, 2)
+  tipo         Tipo
+  data         DateTime
+  status       Status     @default(REALIZADO)
+  codigoBarras String?
+  chavePix     String?
+  pdfUrl       String?
+  categoriaId  String?
+  categoria    Categoria? @relation(fields: [categoriaId], references: [id])
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+}
+
+model AnaliseIA {
+  id        String   @id @default(cuid())
+  conteudo  String   @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+enum Tipo {
+  RECEITA
+  DESPESA
+}
+
+enum Status {
+  PENDENTE
+  PAGO
+  VENCIDO
+  REALIZADO
+}
