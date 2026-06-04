@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { buttonVariants } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { ManualFormTab } from "./manual-form-tab"
+import { PdfUploadTab } from "./pdf-upload-tab"
 
 interface Categoria {
   id: string
@@ -20,14 +21,6 @@ interface Categoria {
 
 interface NovoLancamentoModalProps {
   categorias: Categoria[]
-}
-
-function PdfUploadTabPlaceholder() {
-  return (
-    <div className="py-8 text-center text-sm text-muted-foreground">
-      Upload de PDF será implementado em breve.
-    </div>
-  )
 }
 
 export function NovoLancamentoModal({ categorias }: NovoLancamentoModalProps) {
@@ -52,7 +45,7 @@ export function NovoLancamentoModal({ categorias }: NovoLancamentoModalProps) {
             <ManualFormTab categorias={categorias} onSuccess={() => setOpen(false)} />
           </TabsContent>
           <TabsContent value="pdf" className="mt-4">
-            <PdfUploadTabPlaceholder />
+            <PdfUploadTab categorias={categorias} onSuccess={() => setOpen(false)} />
           </TabsContent>
         </Tabs>
       </DialogContent>
