@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { LancamentosTable } from "@/components/lancamentos/lancamentos-table"
+import { NovoLancamentoModal } from "@/components/lancamentos/novo-lancamento-modal"
 import { redirect } from "next/navigation"
 
 export default async function LancamentosPage({
@@ -46,7 +47,7 @@ export default async function LancamentosPage({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Lançamentos</h1>
-        {/* NovoLancamentoModal will be added in Task 8 */}
+        <NovoLancamentoModal categorias={categorias} />
       </div>
 
       <form className="flex flex-wrap gap-2">
