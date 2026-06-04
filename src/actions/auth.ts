@@ -30,7 +30,11 @@ export async function cadastrar(formData: FormData) {
   })
 
   await seedDefaultCategorias(user.id)
-  redirect("/dashboard")
+  await signIn("credentials", {
+    email: parsed.data.email,
+    password: parsed.data.password,
+    redirectTo: "/dashboard",
+  })
 }
 
 export async function login(formData: FormData) {
