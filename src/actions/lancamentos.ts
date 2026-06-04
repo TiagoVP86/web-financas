@@ -56,6 +56,14 @@ export async function criarLancamento(formData: FormData) {
   })
   if (!parsed.success) return { error: "Dados inválidos" }
 
+  if (parsed.data.categoriaId) {
+    const cat = await db.categoria.findFirst({
+      where: { id: parsed.data.categoriaId, userId },
+      select: { id: true },
+    })
+    if (!cat) return { error: "Categoria inválida" }
+  }
+
   await db.lancamento.create({
     data: {
       descricao:    parsed.data.descricao,
