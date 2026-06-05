@@ -172,7 +172,7 @@ export function TransacoesTable({
                           onValueChange={(v) =>
                             v === "none"
                               ? setOverrides((p) => ({ ...p, [t.id]: { categoriaId: null, categoriaNova: null } }))
-                              : setCategoriaId(t.id, v)
+                              : setCategoriaId(t.id, v!)
                           }
                         >
                           <SelectTrigger className="h-7 text-xs">
