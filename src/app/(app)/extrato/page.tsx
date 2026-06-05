@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
@@ -6,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
-export const metadata = { title: "Análise de Extrato" }
+export const metadata: Metadata = { title: "Análise de Extrato" }
 
 export default async function ExtratoPage() {
   const session = await auth()
