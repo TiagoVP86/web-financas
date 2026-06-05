@@ -30,7 +30,6 @@ export default async function RelatoriosPage({
         userId,
         tipo: "DESPESA",
         data: { gte: start, lte: end },
-        status: { in: ["REALIZADO", "PAGO"] },
       },
       include: { categoria: true },
     }),
@@ -41,11 +40,7 @@ export default async function RelatoriosPage({
         const e = endOfMonth(d)
         return db.lancamento
           .findMany({
-            where: {
-              userId,
-              data: { gte: s, lte: e },
-              status: { in: ["REALIZADO", "PAGO"] },
-            },
+            where: { userId, data: { gte: s, lte: e } },
           })
           .then((items) => ({
             mes: format(d, "MMM", { locale: ptBR }),

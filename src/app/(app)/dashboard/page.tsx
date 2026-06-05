@@ -21,19 +21,22 @@ export default async function DashboardPage() {
   const next7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
 
   const [lancamentos, pendentes, monthlyRaw] = await Promise.all([
+    // Cards: todos os lançamentos do mês (qualquer status)
+    db.lancamento.findMany({
+      where: { userId, data: { gte: monthStart, lte: monthEnd } },
+    }),
+    // Próximas contas: PENDENTE + VENCIDO
     db.lancamento.findMany({
       where: {
         userId,
-        data: { gte: monthStart, lte: monthEnd },
-        status: { in: ["REALIZADO", "PAGO"] },
+        status: { in: ["PENDENTE", "VENCIDO"] },
+        data: { lte: next7 },
       },
-    }),
-    db.lancamento.findMany({
-      where: { userId, status: "PENDENTE", data: { lte: next7 } },
       include: { categoria: true },
       orderBy: { data: "asc" },
       take: 5,
     }),
+    // Gráfico: todos os lançamentos por mês
     Promise.all(
       Array.from({ length: 6 }, (_, i) => {
         const d = subMonths(now, 5 - i)
@@ -41,11 +44,7 @@ export default async function DashboardPage() {
         const end = endOfMonth(d)
         return db.lancamento
           .findMany({
-            where: {
-              userId,
-              data: { gte: start, lte: end },
-              status: { in: ["REALIZADO", "PAGO"] },
-            },
+            where: { userId, data: { gte: start, lte: end } },
           })
           .then((items) => ({
             mes: format(d, "MMM", { locale: ptBR }),
