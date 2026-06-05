@@ -27,12 +27,17 @@ export async function POST(req: NextRequest) {
   // UUID key prevents path traversal and makes URLs unguessable.
   const blobKey = `pdfs/${session.user.id}/${crypto.randomUUID()}.pdf`
 
-  const [blob, parsed] = await Promise.all([
-    put(blobKey, file, { access: "public" }),
-    pdfParse(buffer),
-  ])
+  try {
+    const [blob, parsed] = await Promise.all([
+      put(blobKey, file, { access: "public" }),
+      pdfParse(buffer),
+    ])
 
-  const extracted = await extractBillFromText(parsed.text)
-
-  return NextResponse.json({ pdfUrl: blob.url, extracted })
+    const extracted = await extractBillFromText(parsed.text)
+    return NextResponse.json({ pdfUrl: blob.url, extracted })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error("[upload] error:", message)
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }

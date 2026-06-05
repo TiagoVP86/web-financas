@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { criarLancamento } from "@/actions/lancamentos"
 import { toast } from "sonner"
 import { Upload, Loader2 } from "lucide-react"
-import type { ExtractedBill } from "@/lib/gemini"
+import type { ExtractedBill } from "@/lib/groq"
 
 interface Categoria {
   id: string
@@ -42,8 +42,8 @@ export function PdfUploadTab({ categorias, onSuccess }: PdfUploadTabProps) {
       setExtracted(data.extracted)
       setPdfUrl(data.pdfUrl)
       toast.success("PDF processado! Revise e confirme.")
-    } catch {
-      toast.error("Falha ao processar PDF")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao processar PDF")
     } finally {
       setLoading(false)
     }
