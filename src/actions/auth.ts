@@ -14,6 +14,12 @@ const cadastroSchema = z.object({
 })
 
 export async function cadastrar(formData: FormData) {
+  const registrationSecret = process.env.REGISTRATION_SECRET
+  if (registrationSecret) {
+    const code = formData.get("registrationCode") as string
+    if (code !== registrationSecret) return { error: "Código de convite inválido" }
+  }
+
   const parsed = cadastroSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),

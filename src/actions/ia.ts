@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
-import { analyzeFinances } from "@/lib/gemini"
+import { analyzeFinances } from "@/lib/groq"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { subMonths, startOfMonth } from "date-fns"

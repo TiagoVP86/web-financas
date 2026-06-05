@@ -1,8 +1,8 @@
 import { login } from "@/actions/auth"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { SubmitButton } from "@/components/ui/submit-button"
 import Link from "next/link"
 
 export default function LoginPage() {
@@ -22,7 +22,7 @@ export default function LoginPage() {
             <Label htmlFor="password">Senha</Label>
             <Input id="password" name="password" type="password" required />
           </div>
-          <Button type="submit" className="w-full">Entrar</Button>
+          <SubmitButton className="w-full">Entrar</SubmitButton>
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Não tem conta?{" "}

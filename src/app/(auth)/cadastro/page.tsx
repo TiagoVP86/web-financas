@@ -1,11 +1,12 @@
 import { cadastrar } from "@/actions/auth"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { SubmitButton } from "@/components/ui/submit-button"
 
 const cadastrarAction = cadastrar as unknown as (formData: FormData) => Promise<void>
+const hasSecret = !!process.env.REGISTRATION_SECRET
 
 export default function CadastroPage() {
   return (
@@ -16,6 +17,12 @@ export default function CadastroPage() {
       </CardHeader>
       <CardContent>
         <form action={cadastrarAction} className="space-y-4">
+          {hasSecret && (
+            <div className="space-y-2">
+              <Label htmlFor="registrationCode">Código de convite</Label>
+              <Input id="registrationCode" name="registrationCode" type="password" required />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="name">Nome</Label>
             <Input id="name" name="name" required />
@@ -28,7 +35,7 @@ export default function CadastroPage() {
             <Label htmlFor="password">Senha</Label>
             <Input id="password" name="password" type="password" minLength={6} required />
           </div>
-          <Button type="submit" className="w-full">Criar conta</Button>
+          <SubmitButton className="w-full">Criar conta</SubmitButton>
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Já tem conta?{" "}

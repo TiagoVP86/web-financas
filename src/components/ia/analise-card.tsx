@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, AlertTriangle, Lightbulb } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import type { AnalysisResult } from "@/lib/gemini"
+import type { AnalysisResult } from "@/lib/groq"
 
 interface AnaliseCardProps {
   analise: { id: string; conteudo: string; createdAt: Date }

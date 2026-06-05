@@ -44,3 +44,5 @@ next-env.d.ts
 /screenshots
 cleanup-test-user.mjs
 verify.mjs
+
+.vercel
