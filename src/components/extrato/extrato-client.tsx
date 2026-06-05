@@ -64,7 +64,7 @@ export function ExtratoClient() {
       toast.success(
         `${data.imported} lançamento${data.imported !== 1 ? "s" : ""} importado${data.imported !== 1 ? "s" : ""}!`
       )
-      if (data.errors.length > 0) {
+      if ((data.errors ?? []).length > 0) {
         toast.warning(`${data.errors.length} não importado(s): ${data.errors.join(", ")}`)
       }
 
@@ -99,13 +99,7 @@ export function ExtratoClient() {
         <>
           <ExtratoResumoCard analise={analise} />
           {analise.porCategoria.length > 0 && (
-            <CategoryPieChart
-              data={analise.porCategoria.map((c) => ({
-                nome: c.nome,
-                valor: c.valor,
-                cor: c.cor,
-              }))}
-            />
+            <CategoryPieChart data={analise.porCategoria} />
           )}
           <TransacoesTable
             transacoes={analise.transacoes}
