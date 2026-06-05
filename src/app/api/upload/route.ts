@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const [blob, parsed] = await Promise.all([
-      put(blobKey, file, { access: "public" }),
+      put(blobKey, file, { access: "private" }),
       pdfParse(buffer),
     ])
 
