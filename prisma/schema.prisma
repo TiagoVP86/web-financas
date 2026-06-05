@@ -65,6 +65,8 @@ model AnaliseExtrato {
   user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   transacoes  TransacaoExtrato[]
   createdAt   DateTime           @default(now())
+
+  @@index([userId])
 }
 
 model TransacaoExtrato {
@@ -80,6 +82,8 @@ model TransacaoExtrato {
   lancamentoId  String?
   analiseId     String
   analise       AnaliseExtrato @relation(fields: [analiseId], references: [id], onDelete: Cascade)
+
+  @@index([analiseId])
 }
 
 enum Tipo {
