@@ -1,10 +1,21 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Copy, Check, Trash2, Pencil } from "lucide-react"
+import { Copy, Check, Trash2, Pencil, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { toast } from "sonner"
 import { marcarComoPago, deletarLancamento } from "@/actions/lancamentos"
 import Link from "next/link"
@@ -26,51 +37,52 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
   }
 
   return (
-    <div className="rounded-lg border p-3 space-y-2">
+    <div className="space-y-3 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
       {/* Descrição + tipo */}
-      <div className="flex items-start justify-between gap-2">
-        <span className="font-medium text-sm leading-snug">{l.descricao}</span>
-        <Badge
-          variant="outline"
-          className={`shrink-0 text-xs ${
-            l.tipo === "RECEITA"
-              ? "border-receita text-receita"
-              : "border-despesa text-despesa"
-          }`}
+      <div className="flex items-start gap-3">
+        <span
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+            l.tipo === "RECEITA" ? "bg-receita/10 text-receita" : "bg-despesa/10 text-despesa"
+          )}
         >
-          {l.tipo === "RECEITA" ? "Receita" : "Despesa"}
-        </Badge>
-      </div>
-
-      {/* Categoria + data */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>
-          {l.categoria ? (
-            <span className="flex items-center gap-1">
-              <span
-                className="inline-block h-2 w-2 rounded-full"
-                style={{ background: l.categoria.cor }}
-              />
-              {l.categoria.nome}
-            </span>
+          {l.tipo === "RECEITA" ? (
+            <ArrowUpRight className="h-4 w-4" />
           ) : (
-            "Sem categoria"
+            <ArrowDownRight className="h-4 w-4" />
           )}
         </span>
-        <span>{format(new Date(l.data), "dd/MM/yyyy", { locale: ptBR })}</span>
-      </div>
-
-      {/* Status + valor */}
-      <div className="flex items-center justify-between">
-        <StatusBadge status={l.status} />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium leading-snug">{l.descricao}</p>
+          <p className="text-xs text-muted-foreground">
+            {format(new Date(l.data), "dd/MM/yyyy", { locale: ptBR })}
+          </p>
+        </div>
         <span
-          className={`font-bold text-sm ${
+          className={cn(
+            "shrink-0 text-sm font-bold tabular-nums",
             l.tipo === "RECEITA" ? "text-receita" : "text-despesa"
-          }`}
+          )}
         >
           {l.tipo === "RECEITA" ? "+" : "-"}
           {fmt(l.valor)}
         </span>
+      </div>
+
+      {/* Categoria + status */}
+      <div className="flex items-center justify-between gap-2">
+        {l.categoria ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{ background: l.categoria.cor }}
+            />
+            {l.categoria.nome}
+          </span>
+        ) : (
+          <span className="text-xs text-muted-foreground">Sem categoria</span>
+        )}
+        <StatusBadge status={l.status} />
       </div>
 
       {/* Ações */}
@@ -99,12 +111,28 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
         )}
         <div className="ml-auto flex items-center gap-1">
           {(l.status === "PENDENTE" || l.status === "VENCIDO") && (
-            <form action={marcarComoPago.bind(null, l.id)}>
-              <Button variant="ghost" size="sm" type="submit" className="h-10 px-3 text-xs">
-                <Check className="mr-1 h-3 w-3 text-green-500" />
+            <AlertDialog>
+              <AlertDialogTrigger
+                render={<Button variant="ghost" size="sm" className="h-10 px-3 text-xs" />}
+              >
+                <Check className="mr-1 h-3 w-3 text-receita" />
                 Pagar
-              </Button>
-            </form>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Marcar como pago?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    &ldquo;{l.descricao}&rdquo; terá o status alterado para Pago.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => marcarComoPago(l.id)}>
+                    Confirmar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
           <Link
             href={`/lancamentos/${l.id}/editar`}
@@ -113,11 +141,30 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
           >
             <Pencil className="h-3.5 w-3.5" />
           </Link>
-          <form action={deletarLancamento.bind(null, l.id)}>
-            <Button variant="ghost" size="icon" type="submit" className="h-10 w-10">
+          <AlertDialog>
+            <AlertDialogTrigger
+              render={<Button variant="ghost" size="icon" className="h-10 w-10" />}
+            >
               <Trash2 className="h-3.5 w-3.5 text-destructive" />
-            </Button>
-          </form>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir lançamento?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  &ldquo;{l.descricao}&rdquo; será removido permanentemente. Esta ação não pode ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={() => deletarLancamento(l.id)}
+                >
+                  Excluir
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>

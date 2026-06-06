@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { AnaliseCard } from "@/components/ia/analise-card"
@@ -5,7 +6,7 @@ import { gerarAnalise } from "@/actions/ia"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Sparkles } from "lucide-react"
+import { Sparkles, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { redirect } from "next/navigation"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -56,12 +57,17 @@ export default async function IAPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Sofia — Consultora Financeira</h1>
-          <p className="text-sm text-muted-foreground">
-            Sua assistente de inteligência financeira pessoal
-          </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Sparkles className="h-5 w-5" />
+          </span>
+          <div className="space-y-0.5">
+            <h1 className="text-2xl font-bold tracking-tight">Sofia</h1>
+            <p className="text-sm text-muted-foreground">
+              Sua consultora de inteligência financeira pessoal
+            </p>
+          </div>
         </div>
         <form action={gerarAnalise as unknown as (formData: FormData) => Promise<void>}>
           <Button type="submit">
@@ -81,7 +87,7 @@ export default async function IAPage() {
         </CardHeader>
         <CardContent>
           {lancamentos.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhum lançamento no período.</p>
+            <p className="py-4 text-center text-sm text-muted-foreground">Nenhum lançamento no período.</p>
           ) : (
             <>
               {/* Mobile: cards */}
@@ -99,9 +105,7 @@ export default async function IAPage() {
                         {format(new Date(l.data), "dd/MM/yy", { locale: ptBR })}
                       </span>
                       <span
-                        className={`text-sm font-bold ${
-                          l.tipo === "RECEITA" ? "text-receita" : "text-despesa"
-                        }`}
+                        className={cn("text-sm font-bold", l.tipo === "RECEITA" ? "text-receita" : "text-despesa")}
                       >
                         {l.tipo === "RECEITA" ? "+" : "-"}
                         {fmt(Number(l.valor))}
@@ -112,10 +116,10 @@ export default async function IAPage() {
               </div>
 
               {/* Desktop: table */}
-              <div className="hidden md:block max-h-64 overflow-y-auto rounded-md border">
+              <div className="hidden max-h-64 overflow-y-auto rounded-lg border md:block">
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 border-b bg-muted/50">
-                    <tr>
+                  <thead className="sticky top-0 z-10 border-b bg-muted/60 backdrop-blur">
+                    <tr className="text-xs uppercase tracking-wide text-muted-foreground">
                       <th className="px-3 py-2 text-left font-medium">Descrição</th>
                       <th className="px-3 py-2 text-left font-medium">Data</th>
                       <th className="px-3 py-2 text-right font-medium">Valor</th>
@@ -124,18 +128,25 @@ export default async function IAPage() {
                   </thead>
                   <tbody>
                     {lancamentos.map((l) => (
-                      <tr key={l.id} className="border-b last:border-0 hover:bg-muted/20">
+                      <tr key={l.id} className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/30">
                         <td className="px-3 py-2">
-                          <span className={l.tipo === "RECEITA" ? "text-receita" : "text-despesa"}>
-                            {l.tipo === "RECEITA" ? "+" : "-"}
-                          </span>{" "}
-                          {l.descricao}
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={cn(
+                                "flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
+                                l.tipo === "RECEITA" ? "bg-receita/10 text-receita" : "bg-despesa/10 text-despesa"
+                              )}
+                            >
+                              {l.tipo === "RECEITA" ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
+                            </span>
+                            <span className="font-medium">{l.descricao}</span>
+                          </div>
                         </td>
-                        <td className="px-3 py-2 text-muted-foreground">
+                        <td className="px-3 py-2 text-muted-foreground tabular-nums">
                           {format(new Date(l.data), "dd/MM/yy", { locale: ptBR })}
                         </td>
-                        <td className={`px-3 py-2 text-right font-medium ${l.tipo === "RECEITA" ? "text-receita" : "text-despesa"}`}>
-                          {fmt(Number(l.valor))}
+                        <td className={cn("px-3 py-2 text-right font-semibold tabular-nums", l.tipo === "RECEITA" ? "text-receita" : "text-despesa")}>
+                          {l.tipo === "RECEITA" ? "+" : "-"}{fmt(Number(l.valor))}
                         </td>
                         <td className="px-3 py-2">
                           <Badge variant={statusVariant[l.status] ?? "outline"}>
@@ -154,10 +165,12 @@ export default async function IAPage() {
 
       {/* Análises */}
       {analises.length === 0 ? (
-        <div className="rounded-lg border p-8 text-center">
-          <Sparkles className="mx-auto h-10 w-10 text-muted-foreground" />
-          <p className="mt-2 text-sm text-muted-foreground">
-            Nenhuma análise ainda. Clique em &quot;Analisar agora&quot; para começar.
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-card p-12 text-center ring-1 ring-foreground/10">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Sparkles className="h-6 w-6" />
+          </span>
+          <p className="text-sm text-muted-foreground">
+            Nenhuma análise ainda. Clique em &quot;Analisar agora&quot; para a Sofia avaliar suas finanças.
           </p>
         </div>
       ) : (

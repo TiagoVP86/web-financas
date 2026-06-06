@@ -7,11 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { startOfMonth, endOfMonth, subMonths, format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { redirect } from "next/navigation"
+import { ChevronDown } from "lucide-react"
 
 export default async function RelatoriosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mes?: string }>
+  searchParams: Promise<{ mes?: string; ano?: string }>
 }) {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
@@ -19,9 +20,11 @@ export default async function RelatoriosPage({
 
   const sp = await searchParams
   const now = new Date()
+  const currentYear = now.getFullYear()
 
   const mes = sp.mes ? parseInt(sp.mes) : now.getMonth() + 1
-  const ano = now.getFullYear()
+  const ano = sp.ano ? parseInt(sp.ano) : currentYear
+  const anos = [currentYear, currentYear - 1, currentYear - 2]
   const start = new Date(ano, mes - 1, 1)
   const end = new Date(ano, mes, 0, 23, 59, 59)
 
@@ -79,27 +82,42 @@ export default async function RelatoriosPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Relatórios</h1>
-        <AutoSubmitForm>
-          <select
-            name="mes"
-            defaultValue={mes}
-            className="rounded-md border bg-background px-3 py-1.5 text-sm"
-          >
-            {meses.map((m, i) => (
-              <option key={i} value={i + 1}>{m}</option>
-            ))}
-          </select>
+        <AutoSubmitForm className="flex items-center gap-2">
+          <div className="relative">
+            <select
+              name="mes"
+              defaultValue={mes}
+              className="h-9 appearance-none rounded-lg border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+            >
+              {meses.map((m, i) => (
+                <option key={i} value={i + 1}>{m}</option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          </div>
+          <div className="relative">
+            <select
+              name="ano"
+              defaultValue={ano}
+              className="h-9 appearance-none rounded-lg border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+            >
+              {anos.map((a) => (
+                <option key={a} value={a}>{a}</option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          </div>
         </AutoSubmitForm>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <CategoryPieChart data={pieData} />
+        <CategoryPieChart data={pieData} periodo={`${meses[mes - 1]} ${ano}`} />
         <MonthlyBarChart data={monthly} />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Resumo por Categoria — {meses[mes - 1]}</CardTitle>
+          <CardTitle className="text-base">Resumo por Categoria — {meses[mes - 1]} {ano}</CardTitle>
         </CardHeader>
         <CardContent>
           {pieData.length === 0 ? (
@@ -115,9 +133,9 @@ export default async function RelatoriosPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {pieData.map((c) => {
+                  {(() => {
                     const total = pieData.reduce((s, x) => s + x.valor, 0)
-                    return (
+                    return pieData.map((c) => (
                       <tr key={c.nome} className="border-b last:border-0">
                         <td className="py-2">
                           <span className="flex items-center gap-2">
@@ -133,8 +151,8 @@ export default async function RelatoriosPage({
                           {total > 0 ? ((c.valor / total) * 100).toFixed(1) : 0}%
                         </td>
                       </tr>
-                    )
-                  })}
+                    ))
+                  })()}
                 </tbody>
               </table>
             </div>

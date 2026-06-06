@@ -6,6 +6,7 @@ import { signIn } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { z } from "zod"
 import { auth } from "@/lib/auth"
+import { AuthError } from "next-auth"
 
 const cadastroSchema = z.object({
   name: z.string().min(2),
@@ -43,15 +44,27 @@ export async function cadastrar(formData: FormData) {
   })
 }
 
-export async function login(formData: FormData) {
-  await signIn("credentials", {
-    email: formData.get("email"),
-    password: formData.get("password"),
-    redirectTo: "/dashboard",
-  })
+export async function login(
+  _prevState: { error: string } | null,
+  formData: FormData
+): Promise<{ error: string } | null> {
+  try {
+    await signIn("credentials", {
+      email: formData.get("email"),
+      password: formData.get("password"),
+      redirectTo: "/dashboard",
+    })
+  } catch (e) {
+    if (e instanceof AuthError) return { error: "Email ou senha incorretos" }
+    throw e // re-throw redirect errors so Next.js handles navigation
+  }
+  return null
 }
 
-export async function atualizarPerfil(formData: FormData) {
+export async function atualizarPerfil(
+  _prevState: { error: string } | { success: true } | null,
+  formData: FormData
+): Promise<{ error: string } | { success: true } | null> {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
 
@@ -75,7 +88,7 @@ export async function atualizarPerfil(formData: FormData) {
   if (Object.keys(updateData).length > 0) {
     await db.user.update({ where: { id: session.user.id }, data: updateData })
   }
-  redirect("/configuracoes")
+  return { success: true }
 }
 
 export async function seedDefaultCategorias(userId: string) {

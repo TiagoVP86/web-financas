@@ -40,11 +40,9 @@ export default async function RecorrenciasPage() {
   }))
 
   return (
-    <div className="p-6">
-      <RecorrenciasClient
-        initialRecorrencias={recorrencias}
-        categorias={categorias.map((c) => ({ id: c.id, nome: c.nome }))}
-      />
-    </div>
+    <RecorrenciasClient
+      initialRecorrencias={recorrencias}
+      categorias={categorias.map((c) => ({ id: c.id, nome: c.nome }))}
+    />
   )
 }

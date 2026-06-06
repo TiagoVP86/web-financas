@@ -2,15 +2,14 @@
 
 import { useRef } from "react"
 
-interface AutoSubmitFormProps {
+type AutoSubmitFormProps = React.FormHTMLAttributes<HTMLFormElement> & {
   children: React.ReactNode
-  className?: string
 }
 
-export function AutoSubmitForm({ children, className }: AutoSubmitFormProps) {
+export function AutoSubmitForm({ children, onChange: _ignored, ...rest }: AutoSubmitFormProps) {
   const formRef = useRef<HTMLFormElement>(null)
   return (
-    <form ref={formRef} onChange={() => formRef.current?.requestSubmit()} className={className}>
+    <form ref={formRef} onChange={() => formRef.current?.requestSubmit()} {...rest}>
       {children}
     </form>
   )

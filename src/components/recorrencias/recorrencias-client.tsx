@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { Plus, RefreshCw } from "lucide-react"
 import { RecorrenciaCard } from "./recorrencia-card"
 import { RecorrenciaModal } from "./recorrencia-modal"
@@ -61,13 +62,30 @@ export function RecorrenciasClient({ initialRecorrencias, categorias }: Props) {
     setModalOpen(true)
   }
 
+  const ativas = recorrencias.filter((r) => r.ativa)
+  const totalMensal = ativas
+    .filter((r) => r.frequencia === "MENSAL")
+    .reduce((s, r) => s + (r.tipo === "RECEITA" ? r.valor : -r.valor), 0)
+  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Recorrências</h1>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">Recorrências</h1>
+          <p className="text-sm text-muted-foreground">
+            {ativas.length} ativa{ativas.length !== 1 ? "s" : ""} · {recorrencias.length} no total
+            {totalMensal !== 0 && (
+              <>
+                {" · saldo mensal "}
+                <span className={totalMensal >= 0 ? "text-receita" : "text-despesa"}>{fmt(totalMensal)}</span>
+              </>
+            )}
+          </p>
+        </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={handleGerar} disabled={gerando}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${gerando ? "animate-spin" : ""}`} />
+            <RefreshCw className={cn("mr-2 h-4 w-4", gerando && "animate-spin")} />
             Gerar lançamentos
           </Button>
           <Button onClick={openCreate}>
@@ -78,11 +96,21 @@ export function RecorrenciasClient({ initialRecorrencias, categorias }: Props) {
       </div>
 
       {recorrencias.length === 0 ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          Nenhuma recorrência cadastrada. Clique em "Nova" para começar.
-        </p>
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-card p-12 text-center ring-1 ring-foreground/10">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <RefreshCw className="h-6 w-6" />
+          </span>
+          <div className="space-y-1">
+            <p className="text-sm font-medium">Nenhuma recorrência cadastrada</p>
+            <p className="text-sm text-muted-foreground">Clique em “Nova” para automatizar seus lançamentos.</p>
+          </div>
+          <Button onClick={openCreate} className="mt-1">
+            <Plus className="mr-2 h-4 w-4" />
+            Nova recorrência
+          </Button>
+        </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {recorrencias.map((r) => (
             <RecorrenciaCard
               key={r.id}

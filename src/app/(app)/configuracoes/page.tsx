@@ -1,12 +1,10 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { criarCategoria, deletarCategoria } from "@/actions/categorias"
-import { atualizarPerfil } from "@/actions/auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Trash2 } from "lucide-react"
+import { DeleteCategoriaButton } from "@/components/configuracoes/delete-categoria-button"
+import { ProfileForm } from "@/components/configuracoes/profile-form"
+import { CriarCategoriaForm } from "@/components/configuracoes/criar-categoria-form"
+import { UserRound, Tags } from "lucide-react"
 import { redirect } from "next/navigation"
 
 export default async function ConfiguracoesPage() {
@@ -21,91 +19,58 @@ export default async function ConfiguracoesPage() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold">Configurações</h1>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">Configurações</h1>
+        <p className="text-sm text-muted-foreground">Gerencie seu perfil e suas categorias.</p>
+      </div>
 
       {/* Perfil */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center gap-2 space-y-0">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <UserRound className="h-4 w-4" />
+          </span>
           <CardTitle className="text-base">Perfil</CardTitle>
         </CardHeader>
         <CardContent>
-          <form
-            action={atualizarPerfil as unknown as (formData: FormData) => Promise<void>}
-            className="space-y-4"
-          >
-            <div className="space-y-1">
-              <Label>Nome</Label>
-              <Input name="name" defaultValue={user?.name ?? ""} />
-            </div>
-            <div className="space-y-1">
-              <Label>Senha atual (para trocar senha)</Label>
-              <Input
-                name="currentPassword"
-                type="password"
-                placeholder="Deixe em branco para não alterar"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Nova senha</Label>
-              <Input
-                name="newPassword"
-                type="password"
-                placeholder="Mínimo 6 caracteres"
-              />
-            </div>
-            <Button type="submit">Salvar Perfil</Button>
-          </form>
+          <ProfileForm name={user?.name ?? ""} />
         </CardContent>
       </Card>
 
       {/* Categorias */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center gap-2 space-y-0">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Tags className="h-4 w-4" />
+          </span>
           <CardTitle className="text-base">Categorias</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            {categorias.map((c) => (
-              <div
-                key={c.id}
-                className="flex items-center justify-between rounded-md border px-3 py-2"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className="inline-block h-4 w-4 rounded-full border"
-                    style={{ background: c.cor }}
-                  />
-                  <span className="text-sm">{c.nome}</span>
+          {categorias.length === 0 ? (
+            <p className="rounded-lg bg-muted/40 px-3 py-6 text-center text-sm text-muted-foreground">
+              Nenhuma categoria ainda. Crie a primeira abaixo.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {categorias.map((c) => (
+                <div
+                  key={c.id}
+                  className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 transition-colors hover:bg-muted/40"
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="inline-block h-4 w-4 rounded-full ring-1 ring-foreground/15"
+                      style={{ background: c.cor }}
+                    />
+                    <span className="text-sm font-medium">{c.nome}</span>
+                  </div>
+                  <DeleteCategoriaButton id={c.id} nome={c.nome} />
                 </div>
-                <form action={deletarCategoria.bind(null, c.id)}>
-                  <Button variant="ghost" size="icon" type="submit">
-                    <Trash2 className="h-3 w-3 text-destructive" />
-                  </Button>
-                </form>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
-          <form
-            action={criarCategoria as unknown as (formData: FormData) => Promise<void>}
-            className="flex items-end gap-2"
-          >
-            <div className="flex-1 space-y-1">
-              <Label>Nome</Label>
-              <Input name="nome" placeholder="Ex: Viagens" required />
-            </div>
-            <div className="space-y-1">
-              <Label>Cor</Label>
-              <Input
-                name="cor"
-                type="color"
-                defaultValue="#6366f1"
-                className="h-9 w-16 p-1"
-                required
-              />
-            </div>
-            <Button type="submit">Adicionar</Button>
-          </form>
+          <CriarCategoriaForm />
         </CardContent>
       </Card>
     </div>

@@ -14,12 +14,30 @@ import {
   Sparkles,
   Settings,
   LogOut,
-  Wallet,
   Menu,
   FileSearch,
   RefreshCw,
 } from "lucide-react"
 import { useState } from "react"
+
+function Wordmark({ collapsed = false }: { collapsed?: boolean }) {
+  if (collapsed) {
+    return <span className="text-lg font-bold tracking-tight text-primary">MF</span>
+  }
+  return (
+    <span className="text-lg font-bold tracking-tight whitespace-nowrap">
+      Minhas <span className="text-primary">Finanças</span>
+    </span>
+  )
+}
+
+const navLinkClass = (active: boolean) =>
+  cn(
+    "flex items-center rounded-lg text-sm font-medium transition-colors",
+    active
+      ? "bg-primary/10 text-primary"
+      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+  )
 
 const navItems = [
   { href: "/dashboard",     label: "Dashboard",     icon: LayoutDashboard },
@@ -34,9 +52,8 @@ const navItems = [
 function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
     <>
-      <div className="mb-6 flex items-center gap-2 px-2">
-        <Wallet className="h-6 w-6 text-primary" />
-        <span className="font-semibold text-lg">Web Finanças</span>
+      <div className="mb-6 flex items-center px-2">
+        <Wordmark />
       </div>
       <nav className="flex-1 space-y-1">
         {navItems.map(({ href, label, icon: Icon }) => (
@@ -44,12 +61,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
             key={href}
             href={href}
             onClick={onNavigate}
-            className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-              pathname === href
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-            )}
+            className={cn(navLinkClass(pathname === href), "gap-3 px-3 py-2")}
           >
             <Icon className="h-4 w-4" />
             {label}
@@ -83,9 +95,8 @@ export function Sidebar() {
         onMouseLeave={() => setHovered(false)}
       >
         {/* Logo */}
-        <div className={cn("mb-6 flex items-center gap-2", hovered ? "px-2" : "justify-center")}>
-          <Wallet className="h-6 w-6 flex-shrink-0 text-primary" />
-          {hovered && <span className="font-semibold text-lg whitespace-nowrap">Web Finanças</span>}
+        <div className={cn("mb-6 flex h-7 items-center", hovered ? "px-2" : "justify-center")}>
+          <Wordmark collapsed={!hovered} />
         </div>
 
         {/* Nav links */}
@@ -95,13 +106,7 @@ export function Sidebar() {
               key={href}
               href={href}
               title={!hovered ? label : undefined}
-              className={cn(
-                "flex items-center rounded-md py-2 text-sm font-medium transition-colors",
-                hovered ? "gap-3 px-3" : "justify-center px-2",
-                pathname === href
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              )}
+              className={cn(navLinkClass(pathname === href), "py-2", hovered ? "gap-3 px-3" : "justify-center px-2")}
             >
               <Icon className="h-4 w-4 flex-shrink-0" />
               {hovered && <span className="whitespace-nowrap">{label}</span>}
@@ -120,9 +125,8 @@ export function Sidebar() {
 
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b bg-card px-4">
-        <div className="flex items-center gap-2">
-          <Wallet className="h-5 w-5 text-primary" />
-          <span className="font-semibold">Web Finanças</span>
+        <div className="flex items-center">
+          <Wordmark />
         </div>
         <div className="flex items-center gap-1">
           <DarkModeToggle />

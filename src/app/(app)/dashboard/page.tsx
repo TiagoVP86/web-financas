@@ -10,6 +10,7 @@ import { startOfMonth, endOfMonth, subMonths, format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { redirect } from "next/navigation"
 import { AutoSubmitForm } from "@/components/ui/auto-submit-form"
+import { ChevronDown, Sparkles } from "lucide-react"
 
 const MESES = [
   "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
@@ -35,6 +36,12 @@ export default async function DashboardPage({
   const next7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
 
   const anos = Array.from({ length: 4 }, (_, i) => now.getFullYear() - i)
+
+  const brtHour = ((now.getUTCHours() - 3) + 24) % 24
+  const greeting = brtHour < 12 ? "Bom dia" : brtHour < 18 ? "Boa tarde" : "Boa noite"
+  const firstName = session.user.name?.split(" ")[0] || "bem-vindo"
+  const displayDate = format(now, "EEEE, d 'de' MMMM", { locale: ptBR })
+  const dateLabel = displayDate.charAt(0).toUpperCase() + displayDate.slice(1)
 
   const [lancamentos, pendentes, monthlyRaw] = await Promise.all([
     db.lancamento.findMany({
@@ -70,35 +77,49 @@ export default async function DashboardPage({
   const despesas = lancamentos.filter((l) => l.tipo === "DESPESA").reduce((s, l) => s + Number(l.valor), 0)
   const aVencer = pendentes.reduce((s, l) => s + Number(l.valor), 0)
 
+  const prevMonth = monthlyRaw.length >= 2 ? monthlyRaw[monthlyRaw.length - 2] : undefined
+  const prev = prevMonth
+    ? {
+        receitas: prevMonth.receitas,
+        despesas: prevMonth.despesas,
+        saldo: prevMonth.receitas - prevMonth.despesas,
+      }
+    : undefined
+
+  const selectClass =
+    "h-9 w-full appearance-none rounded-lg border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">
-          Dashboard — {MESES[mes - 1]} {ano}
-        </h1>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="space-y-0.5">
+          <p className="text-xs font-medium tracking-wide text-muted-foreground">{dateLabel}</p>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {greeting}, {firstName}
+          </h1>
+        </div>
         <div className="flex items-center gap-2">
-          <AutoSubmitForm className="flex items-center gap-2">
-            <select
-              name="mes"
-              defaultValue={mes}
-              className="rounded-md border bg-background px-3 py-1.5 text-sm"
-            >
-              {MESES.map((m, i) => (
-                <option key={i} value={i + 1}>{m}</option>
-              ))}
-            </select>
-            <select
-              name="ano"
-              defaultValue={ano}
-              className="rounded-md border bg-background px-3 py-1.5 text-sm"
-            >
-              {anos.map((a) => (
-                <option key={a} value={a}>{a}</option>
-              ))}
-            </select>
+          <AutoSubmitForm className="flex items-center gap-2" aria-label="Filtrar período">
+            <div className="relative">
+              <select name="mes" defaultValue={mes} className={selectClass}>
+                {MESES.map((m, i) => (
+                  <option key={i} value={i + 1}>{m}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            </div>
+            <div className="relative">
+              <select name="ano" defaultValue={ano} className={selectClass}>
+                {anos.map((a) => (
+                  <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            </div>
           </AutoSubmitForm>
-          <Link href="/ia" className={cn(buttonVariants({ variant: "outline" }), "text-sm")}>
-            Analisar com IA ✨
+          <Link href="/ia" className={cn(buttonVariants({ variant: "outline" }), "gap-1.5")}>
+            <Sparkles className="h-4 w-4 text-primary" />
+            Analisar com IA
           </Link>
         </div>
       </div>
@@ -108,6 +129,8 @@ export default async function DashboardPage({
         despesas={despesas}
         saldo={receitas - despesas}
         aVencer={aVencer}
+        mes={mes}
+        prev={prev}
       />
 
       <div className="grid gap-4 lg:grid-cols-2">

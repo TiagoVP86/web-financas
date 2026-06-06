@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -104,6 +105,7 @@ export function TransacoesTable({
                     type="checkbox"
                     checked={allSelected}
                     onChange={toggleAll}
+                    aria-label="Selecionar todas"
                     className="cursor-pointer"
                   />
                 </th>
@@ -114,6 +116,13 @@ export function TransacoesTable({
               </tr>
             </thead>
             <tbody>
+              {transacoes.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-3 py-8 text-center text-sm text-muted-foreground">
+                    Nenhuma transação encontrada no extrato.
+                  </td>
+                </tr>
+              )}
               {transacoes.map((t) => {
                 const override = overrides[t.id]
                 const catId = override?.categoriaId ?? t.categoriaId
@@ -123,9 +132,7 @@ export function TransacoesTable({
                 return (
                   <tr
                     key={t.id}
-                    className={`border-b last:border-0 ${
-                      t.importado ? "opacity-40" : "hover:bg-muted/20"
-                    }`}
+                    className={cn("border-b last:border-0", t.importado ? "opacity-40" : "hover:bg-muted/20")}
                   >
                     <td className="px-3 py-2">
                       <input
@@ -149,9 +156,7 @@ export function TransacoesTable({
                       )}
                     </td>
                     <td
-                      className={`px-3 py-2 text-right font-medium whitespace-nowrap ${
-                        t.tipo === "RECEITA" ? "text-receita" : ""
-                      }`}
+                      className={cn("px-3 py-2 text-right font-medium whitespace-nowrap", t.tipo === "RECEITA" ? "text-receita" : "text-despesa")}
                     >
                       {fmt(t.valor)}
                     </td>

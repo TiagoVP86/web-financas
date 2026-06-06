@@ -46,3 +46,4 @@ cleanup-test-user.mjs
 verify.mjs
 
 .vercel
+.superpowers/

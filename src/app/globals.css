@@ -41,6 +41,7 @@
   --color-card: var(--card);
   --color-receita: var(--receita);
   --color-despesa: var(--despesa);
+  --color-alerta: var(--alerta);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -86,6 +87,7 @@
   --sidebar-ring: oklch(0.52 0.233 277);
   --receita: oklch(0.60 0.17 162);
   --despesa: oklch(0.55 0.246 16);
+  --alerta: oklch(0.60 0.17 78);
 }
 
 .dark {
@@ -123,6 +125,7 @@
   --sidebar-ring: oklch(0.585 0.233 277);
   --receita: oklch(0.696 0.17 162);
   --despesa: oklch(0.644 0.246 16);
+  --alerta: oklch(0.72 0.16 85);
 }
 
 @layer base {

@@ -5,7 +5,19 @@ import { LancamentoCard } from "./lancamento-card"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
-import { Copy, Check, Trash2, Pencil } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { cn } from "@/lib/utils"
+import { Copy, Check, Trash2, Pencil, ArrowUpRight, ArrowDownRight, Inbox } from "lucide-react"
 import { toast } from "sonner"
 import { marcarComoPago, deletarLancamento } from "@/actions/lancamentos"
 import Link from "next/link"
@@ -41,8 +53,11 @@ export function LancamentosTable({ lancamentos }: LancamentosTableProps) {
 
   if (lancamentos.length === 0) {
     return (
-      <div className="rounded-lg border p-8 text-center text-muted-foreground">
-        Nenhum lançamento encontrado.
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-card p-12 text-center ring-1 ring-foreground/10">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+          <Inbox className="h-6 w-6" />
+        </span>
+        <p className="text-sm text-muted-foreground">Nenhum lançamento encontrado para os filtros selecionados.</p>
       </div>
     )
   }
@@ -57,10 +72,10 @@ export function LancamentosTable({ lancamentos }: LancamentosTableProps) {
       </div>
 
       {/* Desktop: table */}
-      <div className="hidden md:block rounded-lg border overflow-hidden">
+      <div className="hidden overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10 md:block">
         <table className="w-full text-sm">
-          <thead className="border-b bg-muted/50">
-            <tr>
+          <thead className="border-b bg-muted/40">
+            <tr className="text-xs uppercase tracking-wide text-muted-foreground">
               <th className="px-4 py-3 text-left font-medium">Descrição</th>
               <th className="px-4 py-3 text-left font-medium">Categoria</th>
               <th className="px-4 py-3 text-left font-medium">Data</th>
@@ -71,31 +86,42 @@ export function LancamentosTable({ lancamentos }: LancamentosTableProps) {
           </thead>
           <tbody>
             {lancamentos.map((l) => (
-              <tr key={l.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+              <tr key={l.id} className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/30">
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className={l.tipo === "RECEITA" ? "text-receita" : "text-despesa"}>
-                      {l.tipo === "RECEITA" ? "+" : "-"}
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={cn(
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+                        l.tipo === "RECEITA" ? "bg-receita/10 text-receita" : "bg-despesa/10 text-despesa"
+                      )}
+                    >
+                      {l.tipo === "RECEITA" ? (
+                        <ArrowUpRight className="h-4 w-4" />
+                      ) : (
+                        <ArrowDownRight className="h-4 w-4" />
+                      )}
                     </span>
-                    {l.descricao}
+                    <span className="font-medium">{l.descricao}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-muted-foreground">
+                <td className="px-4 py-3">
                   {l.categoria ? (
-                    <span className="flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
                       <span
-                        className="inline-block h-2 w-2 rounded-full"
+                        className="h-2 w-2 rounded-full"
                         style={{ background: l.categoria.cor }}
                       />
                       {l.categoria.nome}
                     </span>
-                  ) : "—"}
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
                 </td>
-                <td className="px-4 py-3 text-muted-foreground">
+                <td className="px-4 py-3 text-muted-foreground tabular-nums">
                   {format(new Date(l.data), "dd/MM/yyyy", { locale: ptBR })}
                 </td>
-                <td className={`px-4 py-3 text-right font-medium ${l.tipo === "RECEITA" ? "text-receita" : "text-despesa"}`}>
-                  {fmt(l.valor)}
+                <td className={cn("px-4 py-3 text-right font-semibold tabular-nums", l.tipo === "RECEITA" ? "text-receita" : "text-despesa")}>
+                  {l.tipo === "RECEITA" ? "+" : "-"}{fmt(l.valor)}
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge status={l.status} />
@@ -105,29 +131,47 @@ export function LancamentosTable({ lancamentos }: LancamentosTableProps) {
                     {l.codigoBarras && (
                       <Button
                         variant="ghost"
-                        size="icon"
+                        size="sm"
                         onClick={() => copiar(l.codigoBarras!, "Código de barras")}
-                        title="Copiar código de barras"
+                        className="h-8 gap-1 px-2 text-[11px]"
                       >
                         <Copy className="h-3 w-3" />
+                        Cód.
                       </Button>
                     )}
                     {l.chavePix && (
                       <Button
                         variant="ghost"
-                        size="icon"
+                        size="sm"
                         onClick={() => copiar(l.chavePix!, "Chave PIX")}
-                        title="Copiar PIX"
+                        className="h-8 gap-1 px-2 text-[11px]"
                       >
                         <Copy className="h-3 w-3" />
+                        PIX
                       </Button>
                     )}
                     {(l.status === "PENDENTE" || l.status === "VENCIDO") && (
-                      <form action={marcarComoPago.bind(null, l.id)}>
-                        <Button variant="ghost" size="icon" title="Marcar como pago" type="submit">
-                          <Check className="h-3 w-3 text-green-500" />
-                        </Button>
-                      </form>
+                      <AlertDialog>
+                        <AlertDialogTrigger
+                          render={<Button variant="ghost" size="icon" title="Marcar como pago" />}
+                        >
+                          <Check className="h-3 w-3 text-receita" />
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Marcar como pago?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              &ldquo;{l.descricao}&rdquo; terá o status alterado para Pago.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => marcarComoPago(l.id)}>
+                              Confirmar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     )}
                     <Link
                       href={`/lancamentos/${l.id}/editar`}
@@ -136,11 +180,30 @@ export function LancamentosTable({ lancamentos }: LancamentosTableProps) {
                     >
                       <Pencil className="h-3 w-3" />
                     </Link>
-                    <form action={deletarLancamento.bind(null, l.id)}>
-                      <Button variant="ghost" size="icon" title="Excluir" type="submit">
+                    <AlertDialog>
+                      <AlertDialogTrigger
+                        render={<Button variant="ghost" size="icon" title="Excluir" />}
+                      >
                         <Trash2 className="h-3 w-3 text-destructive" />
-                      </Button>
-                    </form>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir lançamento?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            &ldquo;{l.descricao}&rdquo; será removido permanentemente. Esta ação não pode ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            onClick={() => deletarLancamento(l.id)}
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </td>
               </tr>

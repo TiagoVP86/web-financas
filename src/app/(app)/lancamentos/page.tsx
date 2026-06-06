@@ -4,6 +4,7 @@ import { LancamentosTable } from "@/components/lancamentos/lancamentos-table"
 import { NovoLancamentoModal } from "@/components/lancamentos/novo-lancamento-modal"
 import { redirect } from "next/navigation"
 import { AutoSubmitForm } from "@/components/ui/auto-submit-form"
+import { ChevronDown, ListFilter } from "lucide-react"
 
 export default async function LancamentosPage({
   searchParams,
@@ -44,37 +45,81 @@ export default async function LancamentosPage({
     "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro",
   ]
 
+  const totalReceitas = lancamentos.filter((l) => l.tipo === "RECEITA").reduce((s, l) => s + Number(l.valor), 0)
+  const totalDespesas = lancamentos.filter((l) => l.tipo === "DESPESA").reduce((s, l) => s + Number(l.valor), 0)
+  const saldo = totalReceitas - totalDespesas
+  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+
+  const selectClass =
+    "h-9 w-full appearance-none rounded-lg border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Lançamentos</h1>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">Lançamentos</h1>
+          <p className="text-sm text-muted-foreground">
+            {lancamentos.length} {lancamentos.length === 1 ? "registro" : "registros"} em {meses[mes - 1]} de {ano}
+          </p>
+        </div>
         <NovoLancamentoModal categorias={categorias} />
       </div>
 
-      <AutoSubmitForm className="flex flex-wrap gap-2">
-        <select name="mes" defaultValue={mes} className="rounded-md border bg-background px-3 py-1.5 text-sm">
-          {meses.map((m, i) => (
-            <option key={i} value={i + 1}>{m}</option>
-          ))}
-        </select>
-        <select name="tipo" defaultValue={sp.tipo ?? "todos"} className="rounded-md border bg-background px-3 py-1.5 text-sm">
-          <option value="todos">Todos os tipos</option>
-          <option value="RECEITA">Receitas</option>
-          <option value="DESPESA">Despesas</option>
-        </select>
-        <select name="status" defaultValue={sp.status ?? "todos"} className="rounded-md border bg-background px-3 py-1.5 text-sm">
-          <option value="todos">Todos os status</option>
-          <option value="PENDENTE">Pendente</option>
-          <option value="PAGO">Pago</option>
-          <option value="VENCIDO">Vencido</option>
-          <option value="REALIZADO">Realizado</option>
-        </select>
-        <select name="categoriaId" defaultValue={sp.categoriaId ?? ""} className="rounded-md border bg-background px-3 py-1.5 text-sm">
-          <option value="">Todas as categorias</option>
-          {categorias.map((c) => (
-            <option key={c.id} value={c.id}>{c.nome}</option>
-          ))}
-        </select>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="flex items-center justify-between rounded-xl bg-card px-4 py-3 ring-1 ring-foreground/10">
+          <span className="text-sm text-muted-foreground">Receitas</span>
+          <span className="font-semibold text-receita tabular-nums">{fmt(totalReceitas)}</span>
+        </div>
+        <div className="flex items-center justify-between rounded-xl bg-card px-4 py-3 ring-1 ring-foreground/10">
+          <span className="text-sm text-muted-foreground">Despesas</span>
+          <span className="font-semibold text-despesa tabular-nums">{fmt(totalDespesas)}</span>
+        </div>
+        <div className="flex items-center justify-between rounded-xl bg-card px-4 py-3 ring-1 ring-foreground/10">
+          <span className="text-sm text-muted-foreground">Saldo</span>
+          <span className={`font-semibold tabular-nums ${saldo >= 0 ? "text-primary" : "text-despesa"}`}>{fmt(saldo)}</span>
+        </div>
+      </div>
+
+      <AutoSubmitForm className="flex flex-wrap items-center gap-2 rounded-xl bg-card p-3 ring-1 ring-foreground/10">
+        <span className="flex items-center gap-1.5 pr-1 text-sm font-medium text-muted-foreground">
+          <ListFilter className="h-4 w-4" />
+          Filtros
+        </span>
+        <div className="relative">
+          <select name="mes" defaultValue={mes} className={selectClass}>
+            {meses.map((m, i) => (
+              <option key={i} value={i + 1}>{m}</option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        </div>
+        <div className="relative">
+          <select name="tipo" defaultValue={sp.tipo ?? "todos"} className={selectClass}>
+            <option value="todos">Todos os tipos</option>
+            <option value="RECEITA">Receitas</option>
+            <option value="DESPESA">Despesas</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        </div>
+        <div className="relative">
+          <select name="status" defaultValue={sp.status ?? "todos"} className={selectClass}>
+            <option value="todos">Todos os status</option>
+            <option value="PENDENTE">Pendente</option>
+            <option value="PAGO">Pago</option>
+            <option value="VENCIDO">Vencido</option>
+            <option value="REALIZADO">Realizado</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        </div>
+        <div className="relative">
+          <select name="categoriaId" defaultValue={sp.categoriaId ?? ""} className={selectClass}>
+            <option value="">Todas as categorias</option>
+            {categorias.map((c) => (
+              <option key={c.id} value={c.id}>{c.nome}</option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        </div>
       </AutoSubmitForm>
 
       <LancamentosTable lancamentos={lancamentos.map((l) => ({ ...l, valor: Number(l.valor) }))} />

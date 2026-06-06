@@ -18,7 +18,10 @@ const categoriaSchema = z.object({
   icone: z.string().optional(),
 })
 
-export async function criarCategoria(formData: FormData) {
+export async function criarCategoria(
+  _prevState: { error: string } | { success: true } | null,
+  formData: FormData
+): Promise<{ error: string } | { success: true } | null> {
   const userId = await getUserId()
   const parsed = categoriaSchema.safeParse({
     nome:  formData.get("nome"),
@@ -30,9 +33,10 @@ export async function criarCategoria(formData: FormData) {
   try {
     await db.categoria.create({ data: { ...parsed.data, userId } })
   } catch {
-    return { error: "Categoria já existe" }
+    return { error: "Categoria já existe ou nome duplicado" }
   }
   revalidatePath("/configuracoes")
+  return { success: true }
 }
 
 export async function deletarCategoria(id: string) {
