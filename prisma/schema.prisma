@@ -93,6 +93,7 @@ model Recorrencia {
   createdAt      DateTime    @default(now())
 
   @@index([userId])
+  @@index([userId, ativa, proximaGeracao])
 }
 
 model TransacaoExtrato {
