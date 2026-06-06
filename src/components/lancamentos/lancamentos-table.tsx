@@ -94,7 +94,7 @@ export function LancamentosTable({ lancamentos }: LancamentosTableProps) {
                 <td className="px-4 py-3 text-muted-foreground">
                   {format(new Date(l.data), "dd/MM/yyyy", { locale: ptBR })}
                 </td>
-                <td className={`px-4 py-3 text-right font-medium ${l.tipo === "RECEITA" ? "text-receita" : ""}`}>
+                <td className={`px-4 py-3 text-right font-medium ${l.tipo === "RECEITA" ? "text-receita" : "text-despesa"}`}>
                   {fmt(l.valor)}
                 </td>
                 <td className="px-4 py-3">
