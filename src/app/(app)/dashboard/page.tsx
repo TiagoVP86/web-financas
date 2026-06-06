@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { startOfMonth, endOfMonth, subMonths, format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { redirect } from "next/navigation"
+import { AutoSubmitForm } from "@/components/ui/auto-submit-form"
 
 const MESES = [
   "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
@@ -76,7 +77,7 @@ export default async function DashboardPage({
           Dashboard — {MESES[mes - 1]} {ano}
         </h1>
         <div className="flex items-center gap-2">
-          <form className="flex items-center gap-2">
+          <AutoSubmitForm className="flex items-center gap-2">
             <select
               name="mes"
               defaultValue={mes}
@@ -95,13 +96,7 @@ export default async function DashboardPage({
                 <option key={a} value={a}>{a}</option>
               ))}
             </select>
-            <button
-              type="submit"
-              className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
-            >
-              Ver
-            </button>
-          </form>
+          </AutoSubmitForm>
           <Link href="/ia" className={cn(buttonVariants({ variant: "outline" }), "text-sm")}>
             Analisar com IA ✨
           </Link>
