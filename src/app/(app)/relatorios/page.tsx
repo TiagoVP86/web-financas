@@ -105,37 +105,39 @@ export default async function RelatoriosPage({
           {pieData.length === 0 ? (
             <p className="text-sm text-muted-foreground">Sem despesas no período.</p>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="py-2 text-left font-medium">Categoria</th>
-                  <th className="py-2 text-right font-medium">Total</th>
-                  <th className="py-2 text-right font-medium">%</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pieData.map((c) => {
-                  const total = pieData.reduce((s, x) => s + x.valor, 0)
-                  return (
-                    <tr key={c.nome} className="border-b last:border-0">
-                      <td className="py-2">
-                        <span className="flex items-center gap-2">
-                          <span
-                            className="inline-block h-2 w-2 rounded-full"
-                            style={{ background: c.cor }}
-                          />
-                          {c.nome}
-                        </span>
-                      </td>
-                      <td className="py-2 text-right">{fmt(c.valor)}</td>
-                      <td className="py-2 text-right text-muted-foreground">
-                        {total > 0 ? ((c.valor / total) * 100).toFixed(1) : 0}%
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="py-2 text-left font-medium">Categoria</th>
+                    <th className="py-2 text-right font-medium">Total</th>
+                    <th className="py-2 text-right font-medium">%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pieData.map((c) => {
+                    const total = pieData.reduce((s, x) => s + x.valor, 0)
+                    return (
+                      <tr key={c.nome} className="border-b last:border-0">
+                        <td className="py-2">
+                          <span className="flex items-center gap-2">
+                            <span
+                              className="inline-block h-2 w-2 rounded-full"
+                              style={{ background: c.cor }}
+                            />
+                            {c.nome}
+                          </span>
+                        </td>
+                        <td className="py-2 text-right">{fmt(c.valor)}</td>
+                        <td className="py-2 text-right text-muted-foreground">
+                          {total > 0 ? ((c.valor / total) * 100).toFixed(1) : 0}%
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </CardContent>
       </Card>
