@@ -17,20 +17,20 @@ export function SummaryCards({ receitas, despesas, saldo, aVencer }: SummaryCard
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Receitas do mês</CardTitle>
-          <TrendingUp className="h-4 w-4 text-green-500" />
+          <TrendingUp className="h-4 w-4 text-receita" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-500">{fmt(receitas)}</div>
+          <div className="text-2xl font-bold text-receita">{fmt(receitas)}</div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Despesas do mês</CardTitle>
-          <TrendingDown className="h-4 w-4 text-red-500" />
+          <TrendingDown className="h-4 w-4 text-despesa" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-red-500">{fmt(despesas)}</div>
+          <div className="text-2xl font-bold text-despesa">{fmt(despesas)}</div>
         </CardContent>
       </Card>
 
@@ -40,7 +40,7 @@ export function SummaryCards({ receitas, despesas, saldo, aVencer }: SummaryCard
           <Wallet className="h-4 w-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className={`text-2xl font-bold ${saldo >= 0 ? "text-primary" : "text-red-500"}`}>
+          <div className={`text-2xl font-bold ${saldo >= 0 ? "text-primary" : "text-despesa"}`}>
             {fmt(saldo)}
           </div>
         </CardContent>

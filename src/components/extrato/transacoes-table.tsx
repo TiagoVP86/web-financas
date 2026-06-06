@@ -140,7 +140,7 @@ export function TransacoesTable({
                       {format(new Date(t.data), "dd/MM/yy", { locale: ptBR })}
                     </td>
                     <td className="px-3 py-2">
-                      <span className={t.tipo === "RECEITA" ? "text-green-500" : "text-red-500"}>
+                      <span className={t.tipo === "RECEITA" ? "text-receita" : "text-despesa"}>
                         {t.tipo === "RECEITA" ? "+" : "−"}
                       </span>{" "}
                       {t.descricao}
@@ -150,7 +150,7 @@ export function TransacoesTable({
                     </td>
                     <td
                       className={`px-3 py-2 text-right font-medium whitespace-nowrap ${
-                        t.tipo === "RECEITA" ? "text-green-500" : ""
+                        t.tipo === "RECEITA" ? "text-receita" : ""
                       }`}
                     >
                       {fmt(t.valor)}

@@ -59,7 +59,7 @@ export function RecorrenciaCard({ recorrencia: r, onEdit, onRefresh }: Props) {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="font-medium truncate">{r.descricao}</p>
-            <p className={`text-lg font-bold ${r.tipo === "RECEITA" ? "text-green-500" : "text-red-500"}`}>
+            <p className={`text-lg font-bold ${r.tipo === "RECEITA" ? "text-receita" : "text-despesa"}`}>
               {fmt(r.valor)}
             </p>
           </div>

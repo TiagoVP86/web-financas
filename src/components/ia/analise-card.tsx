@@ -29,7 +29,7 @@ export function AnaliseCard({ analise, isLatest }: AnaliseCardProps) {
         <p className="text-sm text-muted-foreground">{data.resumo}</p>
 
         <div>
-          <h4 className="mb-2 flex items-center gap-1 text-sm font-medium text-green-500">
+          <h4 className="mb-2 flex items-center gap-1 text-sm font-medium text-emerald-500">
             <CheckCircle className="h-4 w-4" /> Pontos Positivos
           </h4>
           <ul className="space-y-1">

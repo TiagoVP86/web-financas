@@ -26,20 +26,20 @@ export function ExtratoResumoCard({ analise }: ExtratoResumoCardProps) {
         <p className="text-sm text-muted-foreground">{analise.resumo}</p>
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-lg border p-3 text-center">
-            <div className="flex items-center justify-center gap-1 text-green-500">
+            <div className="flex items-center justify-center gap-1 text-receita">
               <TrendingUp className="h-3 w-3" />
               <span className="text-xs font-medium">Receitas</span>
             </div>
-            <p className="mt-1 text-sm font-bold text-green-500">
+            <p className="mt-1 text-sm font-bold text-receita">
               {fmt(analise.totalReceitas)}
             </p>
           </div>
           <div className="rounded-lg border p-3 text-center">
-            <div className="flex items-center justify-center gap-1 text-red-500">
+            <div className="flex items-center justify-center gap-1 text-despesa">
               <TrendingDown className="h-3 w-3" />
               <span className="text-xs font-medium">Despesas</span>
             </div>
-            <p className="mt-1 text-sm font-bold text-red-500">
+            <p className="mt-1 text-sm font-bold text-despesa">
               {fmt(analise.totalDespesas)}
             </p>
           </div>
@@ -50,7 +50,7 @@ export function ExtratoResumoCard({ analise }: ExtratoResumoCardProps) {
             </div>
             <p
               className={`mt-1 text-sm font-bold ${
-                analise.saldo >= 0 ? "text-green-500" : "text-red-500"
+                analise.saldo >= 0 ? "text-receita" : "text-despesa"
               }`}
             >
               {fmt(analise.saldo)}
