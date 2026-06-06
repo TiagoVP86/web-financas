@@ -16,6 +16,7 @@ model User {
   categorias       Categoria[]
   analisesIA       AnaliseIA[]
   analisesExtrato  AnaliseExtrato[]
+  recorrencias     Recorrencia[]
 }
 
 model Categoria {
@@ -27,6 +28,7 @@ model Categoria {
   user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   lancamentos         Lancamento[]
   transacoesExtrato   TransacaoExtrato[]
+  recorrencias        Recorrencia[]
 
   @@unique([nome, userId])
 }
@@ -43,9 +45,11 @@ model Lancamento {
   pdfUrl       String?
   categoriaId  String?
   categoria    Categoria? @relation(fields: [categoriaId], references: [id])
-  userId       String
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime   @default(now())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  recorrenciaId  String?
+  recorrencia    Recorrencia? @relation(fields: [recorrenciaId], references: [id], onDelete: SetNull)
 }
 
 model AnaliseIA {
@@ -65,6 +69,28 @@ model AnaliseExtrato {
   user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   transacoes  TransacaoExtrato[]
   createdAt   DateTime           @default(now())
+
+  @@index([userId])
+}
+
+model Recorrencia {
+  id             String      @id @default(cuid())
+  descricao      String
+  valor          Decimal     @db.Decimal(10, 2)
+  tipo           Tipo
+  frequencia     Frequencia
+  diaVencimento  Int
+  mes            Int?
+  categoriaId    String?
+  categoria      Categoria?  @relation(fields: [categoriaId], references: [id])
+  totalParcelas  Int?
+  parcelaAtual   Int         @default(0)
+  ativa          Boolean     @default(true)
+  proximaGeracao DateTime
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lancamentos    Lancamento[]
+  createdAt      DateTime    @default(now())
 
   @@index([userId])
 }
@@ -96,4 +122,11 @@ enum Status {
   PAGO
   VENCIDO
   REALIZADO
+}
+
+enum Frequencia {
+  SEMANAL
+  QUINZENAL
+  MENSAL
+  ANUAL
 }
