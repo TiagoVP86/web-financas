@@ -12,7 +12,7 @@ import Link from "next/link"
 type Status = "PENDENTE" | "PAGO" | "VENCIDO" | "REALIZADO"
 type Tipo = "RECEITA" | "DESPESA"
 
-interface LancamentoRow {
+export interface LancamentoRow {
   id: string
   descricao: string
   valor: { toString(): string } | number | string
