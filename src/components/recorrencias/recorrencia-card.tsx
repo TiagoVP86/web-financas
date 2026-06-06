@@ -31,16 +31,22 @@ export function RecorrenciaCard({ recorrencia: r, onEdit, onRefresh }: Props) {
   async function handleDelete() {
     if (!confirm(`Excluir "${r.descricao}"? Os lançamentos já gerados não serão removidos.`)) return
     setLoading(true)
-    await fetch(`/api/recorrencias/${r.id}`, { method: "DELETE" })
-    setLoading(false)
-    onRefresh()
+    try {
+      await fetch(`/api/recorrencias/${r.id}`, { method: "DELETE" })
+      await onRefresh()
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function handleToggle() {
     setLoading(true)
-    await fetch(`/api/recorrencias/${r.id}/toggle`, { method: "POST" })
-    setLoading(false)
-    onRefresh()
+    try {
+      await fetch(`/api/recorrencias/${r.id}/toggle`, { method: "POST" })
+      await onRefresh()
+    } finally {
+      setLoading(false)
+    }
   }
 
   const parcelas = r.totalParcelas

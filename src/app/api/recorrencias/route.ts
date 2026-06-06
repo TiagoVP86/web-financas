@@ -59,7 +59,8 @@ export async function POST(req: NextRequest) {
     !VALID_TIPOS.has(body.tipo) ||
     !VALID_FREQUENCIAS.has(body.frequencia) ||
     !body.dataInicio ||
-    !Number.isInteger(body.diaVencimento) || body.diaVencimento < 1 || body.diaVencimento > 28
+    !Number.isInteger(body.diaVencimento) ||
+    (body.frequencia === "SEMANAL" ? body.diaVencimento < 0 || body.diaVencimento > 6 : body.diaVencimento < 1 || body.diaVencimento > 28)
   ) {
     return NextResponse.json({ error: "Campos inválidos" }, { status: 400 })
   }

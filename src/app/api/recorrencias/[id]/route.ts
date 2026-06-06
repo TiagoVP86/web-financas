@@ -11,7 +11,10 @@ function validateBody(body: AtualizarRecorrenciaBody): string | null {
   if (body.valor == null || body.valor <= 0) return "valor inválido"
   if (!VALID_TIPOS.has(body.tipo)) return "tipo inválido"
   if (!VALID_FREQUENCIAS.has(body.frequencia)) return "frequencia inválida"
-  if (!Number.isInteger(body.diaVencimento) || body.diaVencimento < 1 || body.diaVencimento > 28) return "diaVencimento inválido"
+  const isSemanal = body.frequencia === "SEMANAL"
+  const diaOk = Number.isInteger(body.diaVencimento) &&
+    (isSemanal ? body.diaVencimento >= 0 && body.diaVencimento <= 6 : body.diaVencimento >= 1 && body.diaVencimento <= 28)
+  if (!diaOk) return "diaVencimento inválido"
   return null
 }
 

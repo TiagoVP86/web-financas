@@ -82,7 +82,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
     if (!v) return
     const f = v as Frequencia
     setFrequencia(f)
-    setDiaVencimento(f === "SEMANAL" ? 1 : 1)
+    setDiaVencimento(f === "SEMANAL" ? 0 : 1)
   }
 
   async function handleSave() {
