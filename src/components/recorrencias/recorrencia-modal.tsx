@@ -1,7 +1,6 @@
-// src/components/recorrencias/recorrencia-modal.tsx
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -63,6 +62,29 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Reset all fields when the modal opens or the target recorrencia changes
+  useEffect(() => {
+    if (!open) return
+    setDescricao(recorrencia?.descricao ?? "")
+    setValor(recorrencia ? String(recorrencia.valor) : "")
+    setTipo(recorrencia?.tipo ?? "DESPESA")
+    setFrequencia(recorrencia?.frequencia ?? "MENSAL")
+    setDiaVencimento(recorrencia?.diaVencimento ?? 1)
+    setMes(recorrencia?.mes ?? 1)
+    setCategoriaId(recorrencia?.categoriaId ?? "")
+    setTotalParcelas(recorrencia?.totalParcelas ? String(recorrencia.totalParcelas) : "")
+    setDataInicio(new Date().toISOString().split("T")[0])
+    setScope("futuros")
+    setError(null)
+  }, [open, recorrencia])
+
+  function handleFrequenciaChange(v: string | null) {
+    if (!v) return
+    const f = v as Frequencia
+    setFrequencia(f)
+    setDiaVencimento(f === "SEMANAL" ? 1 : 1)
+  }
+
   async function handleSave() {
     setLoading(true)
     setError(null)
@@ -75,7 +97,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
       diaVencimento,
       mes: frequencia === "ANUAL" ? mes : undefined,
       categoriaId: categoriaId || null,
-      totalParcelas: totalParcelas ? parseInt(totalParcelas) : null,
+      totalParcelas: totalParcelas ? parseInt(totalParcelas, 10) : null,
       dataInicio,
     }
 
@@ -83,7 +105,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
       ? { ...base, scope }
       : base
 
-    const url = isEdit ? `/api/recorrencias/${recorrencia!.id}` : "/api/recorrencias"
+    const url = recorrencia ? `/api/recorrencias/${recorrencia.id}` : "/api/recorrencias"
     const method = isEdit ? "PUT" : "POST"
 
     try {
@@ -106,8 +128,10 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
     }
   }
 
+  const saveDisabled = loading || !descricao.trim() || !valor || parseFloat(valor) <= 0
+
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) { setError(null); onClose() } }}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Editar recorrência" : "Nova recorrência"}</DialogTitle>
@@ -129,7 +153,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
               <Input
                 type="number"
                 step="0.01"
-                min="0"
+                min="0.01"
                 value={valor}
                 onChange={(e) => setValor(e.target.value)}
                 placeholder="0,00"
@@ -150,7 +174,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label>Frequência</Label>
-              <Select value={frequencia} onValueChange={(v) => setFrequencia(v as Frequencia)}>
+              <Select value={frequencia} onValueChange={handleFrequenciaChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="SEMANAL">Semanal</SelectItem>
@@ -166,12 +190,12 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
                 <Label>Dia da semana</Label>
                 <Select
                   value={String(diaVencimento)}
-                  onValueChange={(v) => setDiaVencimento(parseInt(v!))}
+                  onValueChange={(v) => v != null && setDiaVencimento(parseInt(v, 10))}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {DIAS_SEMANA.map((d, i) => (
-                      <SelectItem key={i} value={String(i)}>{d}</SelectItem>
+                      <SelectItem key={d} value={String(i)}>{d}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -186,7 +210,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
                   min={1}
                   max={28}
                   value={diaVencimento}
-                  onChange={(e) => setDiaVencimento(Math.min(28, Math.max(1, parseInt(e.target.value) || 1)))}
+                  onChange={(e) => setDiaVencimento(Math.min(28, Math.max(1, parseInt(e.target.value, 10) || 1)))}
                 />
               </div>
             )}
@@ -195,11 +219,11 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
           {frequencia === "ANUAL" && (
             <div className="space-y-1">
               <Label>Mês</Label>
-              <Select value={String(mes)} onValueChange={(v) => setMes(parseInt(v!))}>
+              <Select value={String(mes)} onValueChange={(v) => v != null && setMes(parseInt(v, 10))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {MESES_NOMES.map((m, i) => (
-                    <SelectItem key={i} value={String(i + 1)}>{m}</SelectItem>
+                    <SelectItem key={m} value={String(i + 1)}>{m}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -211,7 +235,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
               <Label>Categoria</Label>
               <Select
                 value={categoriaId || "none"}
-                onValueChange={(v) => setCategoriaId(v === "none" ? "" : v!)}
+                onValueChange={(v) => v != null && setCategoriaId(v === "none" ? "" : v)}
               >
                 <SelectTrigger><SelectValue placeholder="Sem categoria" /></SelectTrigger>
                 <SelectContent>
@@ -265,10 +289,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
           <Button variant="outline" onClick={onClose} disabled={loading}>
             Cancelar
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={loading || !descricao.trim() || !valor}
-          >
+          <Button onClick={handleSave} disabled={saveDisabled}>
             {loading ? "Salvando..." : "Salvar"}
           </Button>
         </DialogFooter>
