@@ -85,7 +85,7 @@ export default async function DashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <MonthlyChart data={monthlyRaw} />
-        <UpcomingBills bills={pendentes} />
+        <UpcomingBills bills={pendentes.map((l) => ({ ...l, valor: Number(l.valor) }))} />
       </div>
     </div>
   )

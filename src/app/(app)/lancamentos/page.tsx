@@ -79,7 +79,7 @@ export default async function LancamentosPage({
         </button>
       </form>
 
-      <LancamentosTable lancamentos={lancamentos} />
+      <LancamentosTable lancamentos={lancamentos.map((l) => ({ ...l, valor: Number(l.valor) }))} />
     </div>
   )
 }
