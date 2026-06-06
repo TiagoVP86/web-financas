@@ -21,7 +21,8 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
 
   const copiar = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
-    toast.success(`${label} copiado!`)
+      .then(() => toast.success(`${label} copiado!`))
+      .catch(() => toast.error("Não foi possível copiar"))
   }
 
   return (
@@ -79,7 +80,7 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
             variant="ghost"
             size="sm"
             onClick={() => copiar(l.codigoBarras!, "Código de barras")}
-            className="h-8 px-2 text-xs"
+            className="h-10 px-3 text-xs"
           >
             <Copy className="mr-1 h-3 w-3" />
             Cód. Barras
@@ -90,7 +91,7 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
             variant="ghost"
             size="sm"
             onClick={() => copiar(l.chavePix!, "Chave PIX")}
-            className="h-8 px-2 text-xs"
+            className="h-10 px-3 text-xs"
           >
             <Copy className="mr-1 h-3 w-3" />
             PIX
@@ -99,7 +100,7 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
         <div className="ml-auto flex items-center gap-1">
           {(l.status === "PENDENTE" || l.status === "VENCIDO") && (
             <form action={marcarComoPago.bind(null, l.id)}>
-              <Button variant="ghost" size="sm" type="submit" className="h-8 px-2 text-xs">
+              <Button variant="ghost" size="sm" type="submit" className="h-10 px-3 text-xs">
                 <Check className="mr-1 h-3 w-3 text-green-500" />
                 Pagar
               </Button>
@@ -107,12 +108,13 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
           )}
           <Link
             href={`/lancamentos/${l.id}/editar`}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent"
+            aria-label="Editar lançamento"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent"
           >
             <Pencil className="h-3.5 w-3.5" />
           </Link>
           <form action={deletarLancamento.bind(null, l.id)}>
-            <Button variant="ghost" size="icon" type="submit" className="h-8 w-8">
+            <Button variant="ghost" size="icon" type="submit" className="h-10 w-10">
               <Trash2 className="h-3.5 w-3.5 text-destructive" />
             </Button>
           </form>
