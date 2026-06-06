@@ -83,41 +83,71 @@ export default async function IAPage() {
           {lancamentos.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhum lançamento no período.</p>
           ) : (
-            <div className="max-h-64 overflow-y-auto rounded-md border">
-              <table className="w-full text-sm">
-                <thead className="sticky top-0 border-b bg-muted/50">
-                  <tr>
-                    <th className="px-3 py-2 text-left font-medium">Descrição</th>
-                    <th className="px-3 py-2 text-left font-medium">Data</th>
-                    <th className="px-3 py-2 text-right font-medium">Valor</th>
-                    <th className="px-3 py-2 text-left font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lancamentos.map((l) => (
-                    <tr key={l.id} className="border-b last:border-0 hover:bg-muted/20">
-                      <td className="px-3 py-2">
-                        <span className={l.tipo === "RECEITA" ? "text-green-500" : "text-red-500"}>
-                          {l.tipo === "RECEITA" ? "+" : "-"}
-                        </span>{" "}
-                        {l.descricao}
-                      </td>
-                      <td className="px-3 py-2 text-muted-foreground">
+            <>
+              {/* Mobile: cards */}
+              <div className="md:hidden max-h-64 overflow-y-auto space-y-2">
+                {lancamentos.map((l) => (
+                  <div key={l.id} className="rounded-lg border p-3 space-y-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-sm font-medium leading-snug">{l.descricao}</span>
+                      <Badge variant={statusVariant[l.status] ?? "outline"} className="shrink-0 text-xs">
+                        {statusLabel[l.status] ?? l.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">
                         {format(new Date(l.data), "dd/MM/yy", { locale: ptBR })}
-                      </td>
-                      <td className={`px-3 py-2 text-right font-medium ${l.tipo === "RECEITA" ? "text-green-500" : ""}`}>
+                      </span>
+                      <span
+                        className={`text-sm font-bold ${
+                          l.tipo === "RECEITA" ? "text-receita" : "text-despesa"
+                        }`}
+                      >
+                        {l.tipo === "RECEITA" ? "+" : "-"}
                         {fmt(Number(l.valor))}
-                      </td>
-                      <td className="px-3 py-2">
-                        <Badge variant={statusVariant[l.status] ?? "outline"}>
-                          {statusLabel[l.status] ?? l.status}
-                        </Badge>
-                      </td>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop: table */}
+              <div className="hidden md:block max-h-64 overflow-y-auto rounded-md border">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 border-b bg-muted/50">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium">Descrição</th>
+                      <th className="px-3 py-2 text-left font-medium">Data</th>
+                      <th className="px-3 py-2 text-right font-medium">Valor</th>
+                      <th className="px-3 py-2 text-left font-medium">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {lancamentos.map((l) => (
+                      <tr key={l.id} className="border-b last:border-0 hover:bg-muted/20">
+                        <td className="px-3 py-2">
+                          <span className={l.tipo === "RECEITA" ? "text-receita" : "text-despesa"}>
+                            {l.tipo === "RECEITA" ? "+" : "-"}
+                          </span>{" "}
+                          {l.descricao}
+                        </td>
+                        <td className="px-3 py-2 text-muted-foreground">
+                          {format(new Date(l.data), "dd/MM/yy", { locale: ptBR })}
+                        </td>
+                        <td className={`px-3 py-2 text-right font-medium ${l.tipo === "RECEITA" ? "text-receita" : "text-despesa"}`}>
+                          {fmt(Number(l.valor))}
+                        </td>
+                        <td className="px-3 py-2">
+                          <Badge variant={statusVariant[l.status] ?? "outline"}>
+                            {statusLabel[l.status] ?? l.status}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
