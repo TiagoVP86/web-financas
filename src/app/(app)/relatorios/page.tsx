@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { AutoSubmitForm } from "@/components/ui/auto-submit-form"
 import { CategoryPieChart } from "@/components/relatorios/category-pie-chart"
 import { MonthlyBarChart } from "@/components/relatorios/monthly-bar-chart"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -78,7 +79,7 @@ export default async function RelatoriosPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Relatórios</h1>
-        <form>
+        <AutoSubmitForm>
           <select
             name="mes"
             defaultValue={mes}
@@ -88,13 +89,7 @@ export default async function RelatoriosPage({
               <option key={i} value={i + 1}>{m}</option>
             ))}
           </select>
-          <button
-            type="submit"
-            className="ml-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
-          >
-            Ver
-          </button>
-        </form>
+        </AutoSubmitForm>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">

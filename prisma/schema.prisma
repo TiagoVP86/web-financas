@@ -7,24 +7,26 @@ datasource db {
 }
 
 model User {
-  id          String      @id @default(cuid())
-  email       String      @unique
-  password    String
-  name        String?
-  createdAt   DateTime    @default(now())
-  lancamentos Lancamento[]
-  categorias  Categoria[]
-  analisesIA  AnaliseIA[]
+  id               String          @id @default(cuid())
+  email            String          @unique
+  password         String
+  name             String?
+  createdAt        DateTime        @default(now())
+  lancamentos      Lancamento[]
+  categorias       Categoria[]
+  analisesIA       AnaliseIA[]
+  analisesExtrato  AnaliseExtrato[]
 }
 
 model Categoria {
-  id          String      @id @default(cuid())
-  nome        String
-  cor         String
-  icone       String?
-  userId      String
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lancamentos Lancamento[]
+  id                  String              @id @default(cuid())
+  nome                String
+  cor                 String
+  icone               String?
+  userId              String
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lancamentos         Lancamento[]
+  transacoesExtrato   TransacaoExtrato[]
 
   @@unique([nome, userId])
 }
@@ -52,6 +54,36 @@ model AnaliseIA {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+
+model AnaliseExtrato {
+  id          String             @id @default(cuid())
+  nomeArquivo String
+  arquivoUrl  String?
+  resumo      String             @db.Text
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transacoes  TransacaoExtrato[]
+  createdAt   DateTime           @default(now())
+
+  @@index([userId])
+}
+
+model TransacaoExtrato {
+  id            String         @id @default(cuid())
+  descricao     String
+  valor         Decimal        @db.Decimal(10, 2)
+  tipo          Tipo
+  data          DateTime
+  categoriaId   String?
+  categoria     Categoria?     @relation(fields: [categoriaId], references: [id])
+  categoriaNova String?
+  importado     Boolean        @default(false)
+  lancamentoId  String?
+  analiseId     String
+  analise       AnaliseExtrato @relation(fields: [analiseId], references: [id], onDelete: Cascade)
+
+  @@index([analiseId])
 }
 
 enum Tipo {

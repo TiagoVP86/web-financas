@@ -16,6 +16,7 @@ import {
   LogOut,
   Wallet,
   Menu,
+  FileSearch,
 } from "lucide-react"
 import { useState } from "react"
 
@@ -24,6 +25,7 @@ const navItems = [
   { href: "/lancamentos",   label: "Lançamentos",   icon: Receipt },
   { href: "/relatorios",    label: "Relatórios",    icon: BarChart3 },
   { href: "/ia",            label: "Análise IA",    icon: Sparkles },
+  { href: "/extrato",       label: "Extrato",       icon: FileSearch },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ]
 
@@ -123,10 +125,8 @@ export function Sidebar() {
         <div className="flex items-center gap-1">
           <DarkModeToggle />
           <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger>
-              <Button variant="ghost" size="icon" type="button">
-                <Menu className="h-5 w-5" />
-              </Button>
+            <SheetTrigger className="inline-flex h-9 w-9 items-center justify-center rounded-lg hover:bg-accent hover:text-accent-foreground">
+              <Menu className="h-5 w-5" />
             </SheetTrigger>
             <SheetContent side="left" className="w-56 p-3 flex flex-col">
               <NavContent pathname={pathname} onNavigate={() => setOpen(false)} />

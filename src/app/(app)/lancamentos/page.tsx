@@ -3,6 +3,7 @@ import { db } from "@/lib/db"
 import { LancamentosTable } from "@/components/lancamentos/lancamentos-table"
 import { NovoLancamentoModal } from "@/components/lancamentos/novo-lancamento-modal"
 import { redirect } from "next/navigation"
+import { AutoSubmitForm } from "@/components/ui/auto-submit-form"
 
 export default async function LancamentosPage({
   searchParams,
@@ -50,7 +51,7 @@ export default async function LancamentosPage({
         <NovoLancamentoModal categorias={categorias} />
       </div>
 
-      <form className="flex flex-wrap gap-2">
+      <AutoSubmitForm className="flex flex-wrap gap-2">
         <select name="mes" defaultValue={mes} className="rounded-md border bg-background px-3 py-1.5 text-sm">
           {meses.map((m, i) => (
             <option key={i} value={i + 1}>{m}</option>
@@ -74,12 +75,9 @@ export default async function LancamentosPage({
             <option key={c.id} value={c.id}>{c.nome}</option>
           ))}
         </select>
-        <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground">
-          Filtrar
-        </button>
-      </form>
+      </AutoSubmitForm>
 
-      <LancamentosTable lancamentos={lancamentos} />
+      <LancamentosTable lancamentos={lancamentos.map((l) => ({ ...l, valor: Number(l.valor) }))} />
     </div>
   )
 }
