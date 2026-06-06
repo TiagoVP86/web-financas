@@ -14,9 +14,13 @@ export async function POST(
   const existing = await db.recorrencia.findFirst({ where: { id, userId } })
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-  await db.recorrencia.update({
-    where: { id },
-    data: { ativa: !existing.ativa },
-  })
-  return NextResponse.json({ ok: true })
+  try {
+    await db.recorrencia.update({
+      where: { id },
+      data: { ativa: !existing.ativa },
+    })
+    return NextResponse.json({ ok: true })
+  } catch {
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }

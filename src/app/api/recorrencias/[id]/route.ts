@@ -3,6 +3,18 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import type { AtualizarRecorrenciaBody } from "@/types/recorrencia"
 
+const VALID_TIPOS = new Set(["RECEITA", "DESPESA"])
+const VALID_FREQUENCIAS = new Set(["SEMANAL", "QUINZENAL", "MENSAL", "ANUAL"])
+
+function validateBody(body: AtualizarRecorrenciaBody): string | null {
+  if (!body.descricao?.trim()) return "descricao inválida"
+  if (body.valor == null || body.valor <= 0) return "valor inválido"
+  if (!VALID_TIPOS.has(body.tipo)) return "tipo inválido"
+  if (!VALID_FREQUENCIAS.has(body.frequencia)) return "frequencia inválida"
+  if (!Number.isInteger(body.diaVencimento) || body.diaVencimento < 1 || body.diaVencimento > 28) return "diaVencimento inválido"
+  return null
+}
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -15,35 +27,52 @@ export async function PUT(
   const existing = await db.recorrencia.findFirst({ where: { id, userId } })
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-  const body = (await req.json()) as AtualizarRecorrenciaBody
-
-  await db.recorrencia.update({
-    where: { id },
-    data: {
-      descricao: body.descricao,
-      valor: body.valor,
-      tipo: body.tipo,
-      frequencia: body.frequencia,
-      diaVencimento: body.diaVencimento,
-      mes: body.mes ?? null,
-      categoriaId: body.categoriaId ?? null,
-      totalParcelas: body.totalParcelas ?? null,
-    },
-  })
-
-  if (body.scope === "todos") {
-    await db.lancamento.updateMany({
-      where: { recorrenciaId: id, status: "PENDENTE" },
-      data: {
-        descricao: body.descricao,
-        valor: body.valor,
-        tipo: body.tipo,
-        categoriaId: body.categoriaId ?? null,
-      },
-    })
+  let body: AtualizarRecorrenciaBody
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: "JSON inválido" }, { status: 400 })
   }
 
-  return NextResponse.json({ ok: true })
+  const validationError = validateBody(body)
+  if (validationError) return NextResponse.json({ error: validationError }, { status: 400 })
+
+  if (body.categoriaId) {
+    const cat = await db.categoria.findFirst({ where: { id: body.categoriaId, userId } })
+    if (!cat) return NextResponse.json({ error: "Categoria inválida" }, { status: 400 })
+  }
+
+  try {
+    await db.recorrencia.update({
+      where: { id },
+      data: {
+        descricao: body.descricao.trim(),
+        valor: body.valor,
+        tipo: body.tipo,
+        frequencia: body.frequencia,
+        diaVencimento: body.diaVencimento,
+        mes: body.mes ?? null,
+        categoriaId: body.categoriaId ?? null,
+        totalParcelas: body.totalParcelas ?? null,
+      },
+    })
+
+    if (body.scope === "todos") {
+      await db.lancamento.updateMany({
+        where: { recorrenciaId: id, status: "PENDENTE", userId },
+        data: {
+          descricao: body.descricao.trim(),
+          valor: body.valor,
+          tipo: body.tipo,
+          categoriaId: body.categoriaId ?? null,
+        },
+      })
+    }
+
+    return NextResponse.json({ ok: true })
+  } catch {
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }
 
 export async function DELETE(
@@ -58,6 +87,10 @@ export async function DELETE(
   const existing = await db.recorrencia.findFirst({ where: { id, userId } })
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-  await db.recorrencia.delete({ where: { id } })
-  return NextResponse.json({ ok: true })
+  try {
+    await db.recorrencia.delete({ where: { id } })
+    return NextResponse.json({ ok: true })
+  } catch {
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }
