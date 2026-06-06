@@ -1,34 +1,45 @@
-import { login } from "@/actions/auth"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { SubmitButton } from "@/components/ui/submit-button"
+import { LoginForm } from "@/components/auth/login-form"
 import Link from "next/link"
+import { BarChart3 } from "lucide-react"
 
 export default function LoginPage() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Entrar</CardTitle>
-        <CardDescription>Acesse seu controle financeiro</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form action={login} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <Input id="password" name="password" type="password" required />
-          </div>
-          <SubmitButton className="w-full">Entrar</SubmitButton>
-        </form>
-        <p className="mt-4 text-center text-sm text-muted-foreground">
+    <div className="space-y-8">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <div
+          className="flex h-14 w-14 items-center justify-center rounded-2xl"
+          style={{
+            background: "oklch(0.52 0.233 277 / 0.2)",
+            border: "1px solid oklch(0.52 0.233 277 / 0.35)",
+            boxShadow: "0 0 40px oklch(0.52 0.233 277 / 0.2)",
+          }}
+        >
+          <BarChart3 className="h-7 w-7" style={{ color: "oklch(0.75 0.18 277)" }} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Minhas <span style={{ color: "oklch(0.75 0.18 277)" }}>Finanças</span>
+          </h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">Controle financeiro pessoal</p>
+        </div>
+      </div>
+
+      <div
+        className="rounded-2xl border border-white/10 p-8 shadow-2xl"
+        style={{ background: "oklch(0.13 0.01 277 / 0.85)" }}
+      >
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-foreground">Entrar</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">Acesse sua conta</p>
+        </div>
+        <LoginForm />
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           Não tem conta?{" "}
-          <Link href="/cadastro" className="text-primary hover:underline">Cadastre-se</Link>
+          <Link href="/cadastro" className="font-medium text-primary hover:underline">
+            Cadastre-se
+          </Link>
         </p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
