@@ -1,7 +1,11 @@
 import Groq from "groq-sdk"
 import type { TransacaoBruta } from "@/types/extrato"
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+let _groq: Groq | null = null
+function getGroq(): Groq {
+  if (!_groq) _groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+  return _groq
+}
 
 export interface ExtractedBill {
   descricao: string
@@ -24,7 +28,7 @@ function parseJson<T>(text: string): T {
 }
 
 export async function extractBillFromText(text: string): Promise<ExtractedBill> {
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroq().chat.completions.create({
     model: "llama-3.1-8b-instant",
     temperature: 0,
     messages: [
@@ -49,7 +53,7 @@ ${text.slice(0, 4000)}`,
 }
 
 export async function analyzeFinances(data: string): Promise<AnalysisResult> {
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroq().chat.completions.create({
     model: "llama-3.3-70b-versatile",
     temperature: 0.7,
     messages: [
@@ -90,7 +94,7 @@ export interface CategorizacaoResult {
 export async function extractTransactionsFromText(
   text: string
 ): Promise<TransacaoBruta[]> {
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroq().chat.completions.create({
     model: "llama-3.3-70b-versatile",
     temperature: 0,
     messages: [
@@ -129,7 +133,7 @@ export async function extractTransactionsFromImage(
   base64: string,
   mimeType: string
 ): Promise<TransacaoBruta[]> {
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroq().chat.completions.create({
     model: "llama-3.2-11b-vision-preview",
     temperature: 0,
     messages: [
@@ -170,7 +174,7 @@ export async function categorizeTransactions(
   transacoes: TransacaoBruta[],
   categorias: { id: string; nome: string }[]
 ): Promise<CategorizacaoResult> {
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroq().chat.completions.create({
     model: "llama-3.3-70b-versatile",
     temperature: 0.3,
     messages: [
