@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-06T15:00:00Z",
+  "title": "Design System: Web Finanças",
+  "extensions": {
+    "colorMeta": {
+      "commitment-violet": {
+        "role": "primary",
+        "displayName": "Commitment Violet",
+        "canonical": "oklch(0.52 0.233 277)",
+        "tonalRamp": [
+          "oklch(0.15 0.233 277)",
+          "oklch(0.23 0.233 277)",
+          "oklch(0.32 0.233 277)",
+          "oklch(0.42 0.233 277)",
+          "oklch(0.52 0.233 277)",
+          "oklch(0.63 0.20 277)",
+          "oklch(0.75 0.12 277)",
+          "oklch(0.92 0.04 277)"
+        ]
+      },
+      "steady-emerald": {
+        "role": "secondary",
+        "displayName": "Steady Emerald",
+        "canonical": "oklch(0.60 0.17 162)",
+        "semanticRole": "receita (income)",
+        "tonalRamp": [
+          "oklch(0.15 0.17 162)",
+          "oklch(0.25 0.17 162)",
+          "oklch(0.35 0.17 162)",
+          "oklch(0.45 0.17 162)",
+          "oklch(0.60 0.17 162)",
+          "oklch(0.70 0.17 162)",
+          "oklch(0.82 0.10 162)",
+          "oklch(0.93 0.04 162)"
+        ]
+      },
+      "honest-ember": {
+        "role": "tertiary",
+        "displayName": "Honest Ember",
+        "canonical": "oklch(0.55 0.246 16)",
+        "semanticRole": "despesa (expense)",
+        "tonalRamp": [
+          "oklch(0.15 0.246 16)",
+          "oklch(0.25 0.246 16)",
+          "oklch(0.35 0.246 16)",
+          "oklch(0.45 0.246 16)",
+          "oklch(0.55 0.246 16)",
+          "oklch(0.65 0.20 16)",
+          "oklch(0.78 0.12 16)",
+          "oklch(0.93 0.04 16)"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Near-White Canvas",
+        "canonical": "oklch(0.985 0 0)",
+        "tonalRamp": [
+          "oklch(0.07 0 0)",
+          "oklch(0.14 0 0)",
+          "oklch(0.25 0 0)",
+          "oklch(0.50 0 0)",
+          "oklch(0.70 0 0)",
+          "oklch(0.85 0 0)",
+          "oklch(0.96 0 0)",
+          "oklch(0.985 0 0)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(0.14 0 0)"
+      },
+      "muted-text": {
+        "role": "neutral",
+        "displayName": "Muted Text",
+        "canonical": "oklch(0.50 0 0)"
+      },
+      "alert-red": {
+        "role": "error",
+        "displayName": "Alert Red",
+        "canonical": "oklch(0.577 0.245 27.325)"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page titles, dashboard main headings. One per screen."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings, modal titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card titles, table column headers, form section labels."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions, table content. Max 65–75ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Badges, nav links, meta identifiers."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Default easing for state transitions (hover, focus, sidebar expand)."
+      },
+      {
+        "name": "duration-fast",
+        "value": "150ms",
+        "purpose": "Button hover, nav item hover, badge state changes."
+      },
+      {
+        "name": "duration-medium",
+        "value": "200ms",
+        "purpose": "Sidebar width expansion / collapse."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px", "note": "Sidebar switches from mobile sheet to desktop collapsed strip." },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action button. Commitment Violet, used for primary CTAs like 'Adicionar lançamento'.",
+      "html": "<button class=\"ds-btn-primary\">Adicionar lançamento</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: oklch(0.52 0.233 277); color: oklch(0.985 0 0); font-family: Geist Sans, Inter, system-ui, sans-serif; font-size: 14px; font-weight: 500; line-height: 1.4; padding: 8px 16px; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background-color: oklch(0.44 0.233 277); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(0.52 0.233 277); outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary/cancel action. Transparent background, muted text, light violet tint on hover.",
+      "html": "<button class=\"ds-btn-ghost\">Cancelar</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: transparent; color: oklch(0.50 0 0); font-family: Geist Sans, Inter, system-ui, sans-serif; font-size: 14px; font-weight: 500; line-height: 1.4; padding: 8px 16px; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-ghost:hover { background-color: oklch(0.94 0.01 277); color: oklch(0.14 0 0); } .ds-btn-ghost:focus-visible { outline: 2px solid oklch(0.52 0.233 277); outline-offset: 2px; }"
+    },
+    {
+      "name": "Summary Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Dashboard metric card. Label + semantic-colored figure. The signature financial primitive.",
+      "html": "<div class=\"ds-summary-card\"><div class=\"ds-summary-card__header\"><span class=\"ds-summary-card__label\">Receitas do mês</span><svg class=\"ds-summary-card__icon ds-summary-card__icon--receita\" xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"></polyline><polyline points=\"16 7 22 7 22 13\"></polyline></svg></div><div class=\"ds-summary-card__value ds-summary-card__value--receita\">R$ 4.200,00</div></div>",
+      "css": ".ds-summary-card { display: flex; flex-direction: column; gap: 8px; background-color: oklch(1 0 0); border-radius: 0.875rem; padding: 16px; box-shadow: 0 0 0 1px oklch(0.14 0 0 / 10%); } .ds-summary-card__header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 4px; } .ds-summary-card__label { font-family: Geist Sans, Inter, system-ui, sans-serif; font-size: 12px; font-weight: 500; color: oklch(0.50 0 0); } .ds-summary-card__icon { width: 16px; height: 16px; flex-shrink: 0; } .ds-summary-card__icon--receita { color: oklch(0.60 0.17 162); } .ds-summary-card__icon--despesa { color: oklch(0.55 0.246 16); } .ds-summary-card__icon--balance { color: oklch(0.52 0.233 277); } .ds-summary-card__value { font-family: Geist Sans, Inter, system-ui, sans-serif; font-size: 1.5rem; font-weight: 700; line-height: 1.2; } .ds-summary-card__value--receita { color: oklch(0.60 0.17 162); } .ds-summary-card__value--despesa { color: oklch(0.55 0.246 16); } .ds-summary-card__value--balance { color: oklch(0.52 0.233 277); }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Standard text input. 1px hairline border, violet focus ring, no shadow at rest.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field__label\" for=\"ds-input-demo\">Valor</label><input class=\"ds-input\" id=\"ds-input-demo\" type=\"text\" placeholder=\"R$ 0,00\" /></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-field__label { font-family: Geist Sans, Inter, system-ui, sans-serif; font-size: 14px; font-weight: 500; color: oklch(0.14 0 0); } .ds-input { font-family: Geist Sans, Inter, system-ui, sans-serif; font-size: 14px; font-weight: 400; color: oklch(0.14 0 0); background-color: oklch(1 0 0); border: 1px solid oklch(0.90 0 0); border-radius: 0.5rem; padding: 8px 12px; width: 100%; transition: box-shadow 150ms cubic-bezier(0.4,0,0.2,1), border-color 150ms cubic-bezier(0.4,0,0.2,1); outline: none; } .ds-input::placeholder { color: oklch(0.50 0 0); } .ds-input:focus { border-color: oklch(0.52 0.233 277); box-shadow: 0 0 0 3px oklch(0.52 0.233 277 / 50%); }"
+    },
+    {
+      "name": "Nav Items",
+      "kind": "nav",
+      "description": "Sidebar navigation links. Active = violet fill. Default = muted text, light violet tint on hover.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav__item ds-nav__item--active\" href=\"#\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"></rect><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"></rect><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\"></rect><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"></rect></svg>Dashboard</a><a class=\"ds-nav__item\" href=\"#\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline></svg>Lança­mentos</a><a class=\"ds-nav__item\" href=\"#\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"10\"></line><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"4\"></line><line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"14\"></line></svg>Relatórios</a></nav>",
+      "css": ".ds-nav { display: flex; flex-direction: column; gap: 4px; } .ds-nav__item { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 0.5rem; font-family: Geist Sans, Inter, system-ui, sans-serif; font-size: 14px; font-weight: 500; text-decoration: none; color: oklch(0.50 0 0); transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-nav__item:hover { background-color: oklch(0.94 0.01 277); color: oklch(0.14 0 0); } .ds-nav__item--active { background-color: oklch(0.52 0.233 277); color: oklch(0.985 0 0); } .ds-nav__item--active:hover { background-color: oklch(0.52 0.233 277); color: oklch(0.985 0 0); }"
+    },
+    {
+      "name": "Semantic Badges",
+      "kind": "chip",
+      "refersTo": "badge-receita",
+      "description": "Receita / Despesa / Pendente status badges. Tinted background, dark semantic text, pill shape.",
+      "html": "<div class=\"ds-badges-demo\"><span class=\"ds-badge ds-badge--receita\">RECEITA</span><span class=\"ds-badge ds-badge--despesa\">DESPESA</span><span class=\"ds-badge ds-badge--pendente\">PENDENTE</span></div>",
+      "css": ".ds-badges-demo { display: flex; gap: 8px; align-items: center; } .ds-badge { display: inline-flex; align-items: center; font-family: Geist Sans, Inter, system-ui, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.03em; padding: 2px 8px; border-radius: 0.375rem; text-transform: uppercase; } .ds-badge--receita { background-color: oklch(0.93 0.04 162); color: oklch(0.35 0.17 162); } .ds-badge--despesa { background-color: oklch(0.94 0.04 16); color: oklch(0.38 0.246 16); } .ds-badge--pendente { background-color: oklch(0.95 0.04 85); color: oklch(0.45 0.12 85); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Glass Account",
+    "overview": "The design system is built on a single principle: surfaces reveal exactly what the numbers are. Nothing competes with the data. No shadows assert hierarchy over figures. No gradient accents distract from whether the month ended positive or negative. The interface is transparent — not blank, but deliberately clear, the way good glass is clear: you notice what's through it, not the glass itself.\n\nThe Glass Account is restrained by design, not by default. Commitment Violet is the sole expressive brand color; the entire surrounding palette stays neutral so it lands. Steady Emerald and Honest Ember carry chromatic weight because they carry financial meaning — income and expense, respectively. Everything else steps back.\n\nThis system explicitly rejects: generic SaaS cream backgrounds and hero-metric cards; corporate banking navy and gold; startup dashboard purple gradients and glassmorphism; spreadsheet grey-on-grey with no visual hierarchy.",
+    "keyCharacteristics": [
+      "Flat tonal elevation — background, card, and sidebar differentiated by lightness only, no shadows",
+      "Semantic color as the only accent — emerald for income, ember for expense, violet for the brand",
+      "Typographic hierarchy through weight and size, not color or ornament",
+      "Ring-boundary cards instead of shadowed cards",
+      "Full dark-mode support for every surface and semantic token"
+    ],
+    "rules": [
+      {
+        "name": "The Signal Rule",
+        "body": "Steady Emerald means income. Honest Ember means expense. These two colors carry their meaning everywhere they appear. They are never used decoratively.",
+        "section": "colors"
+      },
+      {
+        "name": "The Violet Ceiling Rule",
+        "body": "Commitment Violet appears on ≤15% of any given screen. It is reserved for: one active nav item, primary action buttons, focus rings, and positive balance values.",
+        "section": "colors"
+      },
+      {
+        "name": "The One-Font Rule",
+        "body": "Geist Sans is the only typeface. Hierarchy comes from weight (400/500/600/700) and size — never from introducing a second family.",
+        "section": "typography"
+      },
+      {
+        "name": "The Weight Rule",
+        "body": "Four weights in use: 400, 500, 600, 700. Do not use 300 or intermediate weights like 450.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "box-shadow is prohibited at rest. The ring boundary conveys the card edge; background tonal steps convey surface hierarchy.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do render all income figures and icons in Steady Emerald (oklch(0.60 0.17 162))",
+      "Do render all expense figures and icons in Honest Ember (oklch(0.55 0.246 16))",
+      "Do use ring-1 ring-foreground/10 as the card boundary — no border, no box-shadow",
+      "Do differentiate surfaces using background tokens: background → card-surface → sidebar",
+      "Do support dark mode for every new component",
+      "Do use text-wrap: balance on h1–h3 headings"
+    ],
+    "donts": [
+      "Don't use cream, sand, beige, or warm-tinted backgrounds",
+      "Don't add box-shadow to cards, inputs, or buttons at rest",
+      "Don't use gradient text (background-clip: text)",
+      "Don't use glassmorphism (backdrop-filter: blur) as a card or panel style",
+      "Don't build identical icon + heading + text card grids",
+      "Don't use Commitment Violet on chrome that carries no semantic or interactive meaning",
+      "Don't use border-left wider than 1px as a colored accent stripe",
+      "Don't add uppercase tracked eyebrow labels above section headings",
+      "Don't use navy + gold or any bank-palette color alongside the violet primary",
+      "Don't introduce a second brand accent without resolving it against Commitment Violet"
+    ]
+  }
+}
