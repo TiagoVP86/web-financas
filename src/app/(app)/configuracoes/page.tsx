@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DeleteCategoriaButton } from "@/components/configuracoes/delete-categoria-button"
 import { ProfileForm } from "@/components/configuracoes/profile-form"
 import { CriarCategoriaForm } from "@/components/configuracoes/criar-categoria-form"
-import { UserRound, Tags } from "lucide-react"
+import { NotifDiasForm } from "@/components/configuracoes/notif-dias-form"
+import { UserRound, Tags, Bell } from "lucide-react"
 import { redirect } from "next/navigation"
 
 export default async function ConfiguracoesPage() {
@@ -13,7 +14,7 @@ export default async function ConfiguracoesPage() {
   const userId = session.user.id
 
   const [user, categorias] = await Promise.all([
-    db.user.findUnique({ where: { id: userId } }),
+    db.user.findUnique({ where: { id: userId }, select: { name: true, notifDias: true } }),
     db.categoria.findMany({ where: { userId }, orderBy: { nome: "asc" } }),
   ])
 
@@ -34,6 +35,24 @@ export default async function ConfiguracoesPage() {
         </CardHeader>
         <CardContent>
           <ProfileForm name={user?.name ?? ""} />
+        </CardContent>
+      </Card>
+
+      {/* Notificações */}
+      <Card>
+        <CardHeader className="flex flex-row items-center gap-2 space-y-0">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Bell className="h-4 w-4" />
+          </span>
+          <div>
+            <CardTitle className="text-base">Notificações</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Alertas de contas que vencem em breve{!process.env.RESEND_API_KEY ? " (email desativado — configure RESEND_API_KEY)" : " via sino e email"}
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <NotifDiasForm notifDias={user?.notifDias ?? 3} />
         </CardContent>
       </Card>
 

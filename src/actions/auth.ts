@@ -91,6 +91,20 @@ export async function atualizarPerfil(
   return { success: true }
 }
 
+export async function atualizarNotifDias(
+  _: unknown,
+  formData: FormData
+): Promise<{ success: true } | { error: string }> {
+  const session = await auth()
+  if (!session?.user?.id) redirect("/login")
+
+  const dias = parseInt(formData.get("notifDias") as string)
+  if (!dias || dias < 1 || dias > 30) return { error: "Valor deve ser entre 1 e 30 dias." }
+
+  await db.user.update({ where: { id: session.user.id }, data: { notifDias: dias } })
+  return { success: true }
+}
+
 export async function seedDefaultCategorias(userId: string) {
   const defaults = [
     { nome: "Moradia",     cor: "#6366f1", icone: "home" },

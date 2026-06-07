@@ -21,6 +21,8 @@ model User {
   parcelamentos    Parcelamento[]
   contas           Conta[]
   metas            Meta[]
+  notificacoes     Notificacao[]
+  notifDias        Int           @default(3)
 }
 
 model Categoria {
@@ -184,6 +186,26 @@ model Meta {
   updatedAt  DateTime  @updatedAt
 
   @@index([userId])
+}
+
+model Notificacao {
+  id           String          @id @default(cuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tipo         TipoNotificacao
+  titulo       String
+  mensagem     String
+  lida         Boolean         @default(false)
+  lancamentoId String?
+  createdAt    DateTime        @default(now())
+
+  @@index([userId, lida])
+  @@index([userId, lancamentoId, tipo])
+}
+
+enum TipoNotificacao {
+  VENCIMENTO_PROXIMO
+  VENCIDO
 }
 
 enum Tipo {

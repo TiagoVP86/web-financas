@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { DarkModeToggle } from "./dark-mode-toggle"
+import { NotificationBell } from "./notification-bell"
 import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -77,6 +78,7 @@ function NavContent({ pathname, onNavigate }: { pathname: string; onNavigate?: (
         ))}
       </nav>
       <div className="flex items-center justify-between px-2">
+        <NotificationBell />
         <DarkModeToggle />
         <Button variant="ghost" size="icon" onClick={() => signOut({ callbackUrl: "/login" })}>
           <LogOut className="h-4 w-4" />
@@ -124,6 +126,7 @@ export function Sidebar() {
 
         {/* Bottom actions */}
         <div className={cn("flex items-center", hovered ? "justify-between px-2" : "flex-col gap-1 px-0")}>
+          <NotificationBell />
           <DarkModeToggle />
           <Button variant="ghost" size="icon" onClick={() => signOut({ callbackUrl: "/login" })}>
             <LogOut className="h-4 w-4" />
