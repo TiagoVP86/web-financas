@@ -21,6 +21,7 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const unread = notifs.filter((n) => !n.lida).length
 
@@ -51,6 +52,7 @@ export function NotificationBell() {
       }
       const target = e.target as Node
       if (buttonRef.current?.contains(target)) return
+      if (dropdownRef.current?.contains(target)) return
       setOpen(false)
     }
     document.addEventListener("mousedown", handleClose)
@@ -69,8 +71,19 @@ export function NotificationBell() {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect()
       const dropdownWidth = 320
-      const left = Math.max(8, Math.min(rect.right - dropdownWidth, window.innerWidth - dropdownWidth - 8))
-      setPos({ top: rect.bottom + 6, left })
+      const dropdownHeight = 400
+
+      // Prefer right of sidebar; fall back to left if off-screen
+      let left = rect.right + 8
+      if (left + dropdownWidth > window.innerWidth - 8) {
+        left = Math.max(8, rect.left - dropdownWidth - 8)
+      }
+
+      // Prefer bottom-aligned with button (opens upward) — sidebar bell is near bottom
+      let top = rect.bottom - dropdownHeight
+      if (top < 8) top = 8
+
+      setPos({ top, left })
     }
     setOpen(true)
     if (unread > 0) markAllRead()
@@ -96,6 +109,7 @@ export function NotificationBell() {
 
       {open && pos && (
         <div
+          ref={dropdownRef}
           style={{ top: pos.top, left: pos.left }}
           className="fixed z-[200] w-80 rounded-xl bg-popover shadow-lg ring-1 ring-foreground/10 overflow-hidden"
         >
