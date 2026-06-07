@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { gerarLancamentos } from "@/lib/recorrencia"
 import { RecorrenciasClient } from "@/components/recorrencias/recorrencias-client"
 import type { RecorrenciaItem } from "@/types/recorrencia"
 
@@ -11,6 +12,8 @@ export default async function RecorrenciasPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
   const userId = session.user.id
+
+  await gerarLancamentos(userId)
 
   const [recorrenciasRaw, categorias] = await Promise.all([
     db.recorrencia.findMany({

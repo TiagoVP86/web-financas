@@ -18,12 +18,12 @@ export function calcularProximaGeracao(atual: Date, frequencia: Frequencia): Dat
   }
 }
 
-export async function gerarLancamentos(userId: string): Promise<{ gerados: number }> {
+export async function gerarLancamentos(userId?: string): Promise<{ gerados: number }> {
   const now = new Date()
 
   const recorrencias = await db.recorrencia.findMany({
     where: {
-      userId,
+      ...(userId ? { userId } : {}),
       ativa: true,
       proximaGeracao: { lte: now },
     },
@@ -62,7 +62,7 @@ export async function gerarLancamentos(userId: string): Promise<{ gerados: numbe
             status: "PENDENTE",
             categoriaId: rec.categoriaId ?? null,
             recorrenciaId: rec.id,
-            userId,
+            userId: rec.userId,
           },
         })
       }

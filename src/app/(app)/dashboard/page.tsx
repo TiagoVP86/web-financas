@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { gerarLancamentos } from "@/lib/recorrencia"
 import { SummaryCards } from "@/components/dashboard/summary-cards"
 import { MonthlyChart } from "@/components/dashboard/monthly-chart"
 import { UpcomingBills } from "@/components/dashboard/upcoming-bills"
@@ -25,6 +26,8 @@ export default async function DashboardPage({
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
   const userId = session.user.id
+
+  await gerarLancamentos(userId)
 
   const sp = await searchParams
   const now = new Date()
