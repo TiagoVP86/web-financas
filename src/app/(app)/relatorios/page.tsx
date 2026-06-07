@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { AutoSubmitForm } from "@/components/ui/auto-submit-form"
+import { ExportButton } from "@/components/lancamentos/export-button"
 import { CategoryPieChart } from "@/components/relatorios/category-pie-chart"
 import { MonthlyBarChart } from "@/components/relatorios/monthly-bar-chart"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -80,8 +81,13 @@ export default async function RelatoriosPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Relatórios</h1>
+        <div className="flex items-center gap-2">
+        <ExportButton
+          exportUrl={`/api/export/relatorios?mes=${mes}&ano=${ano}`}
+          filename={`relatorios-${meses[mes - 1].toLowerCase()}-${ano}.csv`}
+        />
         <AutoSubmitForm className="flex items-center gap-2">
           <div className="relative">
             <select
@@ -108,6 +114,7 @@ export default async function RelatoriosPage({
             <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           </div>
         </AutoSubmitForm>
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
