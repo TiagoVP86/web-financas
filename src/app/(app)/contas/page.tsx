@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { Landmark } from "lucide-react"
 import { ContaCard } from "@/components/contas/conta-card"
 import { CriarContaForm } from "@/components/contas/criar-conta-form"
+import { TransferenciasSection } from "@/components/contas/transferencias-section"
 import type { ContaItem } from "@/types/conta"
 
 export const metadata: Metadata = { title: "Contas" }
@@ -16,13 +17,22 @@ export default async function ContasPage() {
   if (!session?.user?.id) redirect("/login")
   const userId = session.user.id
 
-  const contasRaw = await db.conta.findMany({
-    where: { userId },
-    include: {
-      lancamentos: { select: { valor: true, tipo: true } },
-    },
-    orderBy: { createdAt: "asc" },
-  })
+  const [contasRaw, transferenciasRaw] = await Promise.all([
+    db.conta.findMany({
+      where: { userId },
+      include: { lancamentos: { select: { valor: true, tipo: true } } },
+      orderBy: { createdAt: "asc" },
+    }),
+    db.transferencia.findMany({
+      where: { userId },
+      include: {
+        contaOrigem: { select: { nome: true } },
+        contaDestino: { select: { nome: true } },
+      },
+      orderBy: { data: "desc" },
+      take: 10,
+    }),
+  ])
 
   const contas: ContaItem[] = contasRaw.map((c) => {
     const receitas = c.lancamentos
@@ -44,6 +54,17 @@ export default async function ContasPage() {
   })
 
   const saldoTotal = contas.reduce((s, c) => s + c.saldo, 0)
+
+  const transferencias = transferenciasRaw.map((t) => ({
+    id: t.id,
+    valor: Number(t.valor),
+    data: t.data.toISOString(),
+    descricao: t.descricao,
+    contaOrigem: t.contaOrigem,
+    contaDestino: t.contaDestino,
+  }))
+
+  const contasSimples = contas.map((c) => ({ id: c.id, nome: c.nome }))
 
   return (
     <div className="space-y-6">
@@ -83,6 +104,8 @@ export default async function ContasPage() {
           ))}
         </div>
       )}
+
+      <TransferenciasSection transferencias={transferencias} contas={contasSimples} />
 
       <div className="max-w-sm">
         <CriarContaForm />

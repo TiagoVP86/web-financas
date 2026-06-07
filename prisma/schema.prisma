@@ -23,6 +23,7 @@ model User {
   metas            Meta[]
   notificacoes     Notificacao[]
   notifDias        Int           @default(3)
+  transferencias   Transferencia[]
 }
 
 model Categoria {
@@ -133,8 +134,10 @@ model Conta {
   cor          String     @default("#6366f1")
   userId       String
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lancamentos  Lancamento[]
-  createdAt    DateTime   @default(now())
+  lancamentos           Lancamento[]
+  transferenciasOrigem  Transferencia[] @relation("TransferenciaOrigem")
+  transferenciasDestino Transferencia[] @relation("TransferenciaDestino")
+  createdAt             DateTime        @default(now())
 
   @@unique([nome, userId])
   @@index([userId])
@@ -170,6 +173,24 @@ model Orcamento {
   updatedAt   DateTime   @updatedAt
 
   @@unique([userId, categoriaId, mes, ano])
+  @@index([userId])
+}
+
+model Transferencia {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  valor               Decimal  @db.Decimal(10, 2)
+  data                DateTime
+  descricao           String?
+  contaOrigemId       String
+  contaOrigem         Conta    @relation("TransferenciaOrigem", fields: [contaOrigemId], references: [id], onDelete: Cascade)
+  contaDestinoId      String
+  contaDestino        Conta    @relation("TransferenciaDestino", fields: [contaDestinoId], references: [id], onDelete: Cascade)
+  lancamentoOrigemId  String
+  lancamentoDestinoId String
+  createdAt           DateTime @default(now())
+
   @@index([userId])
 }
 
