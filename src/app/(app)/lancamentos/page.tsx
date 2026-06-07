@@ -10,7 +10,7 @@ import { ChevronDown, ListFilter } from "lucide-react"
 export default async function LancamentosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mes?: string; tipo?: string; status?: string; categoriaId?: string; contaId?: string }>
+  searchParams: Promise<{ mes?: string; ano?: string; tipo?: string; status?: string; categoriaId?: string; contaId?: string }>
 }) {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
@@ -20,7 +20,7 @@ export default async function LancamentosPage({
   const now = new Date()
 
   const mes = sp.mes ? parseInt(sp.mes) : now.getMonth() + 1
-  const ano = now.getFullYear()
+  const ano = sp.ano ? parseInt(sp.ano) : now.getFullYear()
   const start = new Date(ano, mes - 1, 1)
   const end = new Date(ano, mes, 0, 23, 59, 59)
 
@@ -47,6 +47,7 @@ export default async function LancamentosPage({
     "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
     "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro",
   ]
+  const anos = Array.from({ length: 4 }, (_, i) => now.getFullYear() - i)
 
   const totalReceitas = lancamentos.filter((l) => l.tipo === "RECEITA").reduce((s, l) => s + Number(l.valor), 0)
   const totalDespesas = lancamentos.filter((l) => l.tipo === "DESPESA").reduce((s, l) => s + Number(l.valor), 0)
@@ -62,7 +63,7 @@ export default async function LancamentosPage({
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">Lançamentos</h1>
           <p className="text-sm text-muted-foreground">
-            {lancamentos.length} {lancamentos.length === 1 ? "registro" : "registros"} em {meses[mes - 1]} de {ano}
+            {lancamentos.length} {lancamentos.length === 1 ? "registro" : "registros"} · {meses[mes - 1]} {ano}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -85,7 +86,7 @@ export default async function LancamentosPage({
         </div>
         <div className="flex items-center justify-between rounded-xl bg-card px-4 py-3 ring-1 ring-foreground/10">
           <span className="text-sm text-muted-foreground">Saldo</span>
-          <span className={`font-semibold tabular-nums ${saldo >= 0 ? "text-primary" : "text-despesa"}`}>{fmt(saldo)}</span>
+          <span className={`font-semibold tabular-nums ${saldo > 0 ? "text-receita" : saldo < 0 ? "text-despesa" : "text-foreground"}`}>{fmt(saldo)}</span>
         </div>
       </div>
 
@@ -98,6 +99,14 @@ export default async function LancamentosPage({
           <select name="mes" defaultValue={mes} className={selectClass}>
             {meses.map((m, i) => (
               <option key={i} value={i + 1}>{m}</option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        </div>
+        <div className="relative">
+          <select name="ano" defaultValue={ano} className={selectClass}>
+            {anos.map((a) => (
+              <option key={a} value={a}>{a}</option>
             ))}
           </select>
           <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
