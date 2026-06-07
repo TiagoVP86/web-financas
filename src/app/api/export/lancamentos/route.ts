@@ -29,10 +29,12 @@ export async function GET(req: NextRequest) {
   const status = sp.get("status")
   const categoriaId = sp.get("categoriaId")
   const contaId = sp.get("contaId")
+  const busca = sp.get("busca")
   if (tipo && tipo !== "todos") where.tipo = tipo
   if (status && status !== "todos") where.status = status
   if (categoriaId) where.categoriaId = categoriaId
   if (contaId) where.contaId = contaId
+  if (busca?.trim()) where.descricao = { contains: busca.trim(), mode: "insensitive" }
 
   const lancamentos = await db.lancamento.findMany({
     where,

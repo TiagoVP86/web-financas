@@ -5,12 +5,12 @@ import { NovoLancamentoModal } from "@/components/lancamentos/novo-lancamento-mo
 import { ExportButton } from "@/components/lancamentos/export-button"
 import { redirect } from "next/navigation"
 import { AutoSubmitForm } from "@/components/ui/auto-submit-form"
-import { ChevronDown, ListFilter } from "lucide-react"
+import { ChevronDown, ListFilter, Search } from "lucide-react"
 
 export default async function LancamentosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mes?: string; ano?: string; tipo?: string; status?: string; categoriaId?: string; contaId?: string }>
+  searchParams: Promise<{ mes?: string; ano?: string; tipo?: string; status?: string; categoriaId?: string; contaId?: string; busca?: string }>
 }) {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
@@ -32,6 +32,7 @@ export default async function LancamentosPage({
   if (sp.status && sp.status !== "todos") where.status = sp.status
   if (sp.categoriaId) where.categoriaId = sp.categoriaId
   if (sp.contaId) where.contaId = sp.contaId
+  if (sp.busca?.trim()) where.descricao = { contains: sp.busca.trim(), mode: "insensitive" }
 
   const [lancamentos, categorias, contas] = await Promise.all([
     db.lancamento.findMany({
@@ -68,7 +69,7 @@ export default async function LancamentosPage({
         </div>
         <div className="flex items-center gap-2">
           <ExportButton
-            exportUrl={`/api/export/lancamentos?mes=${mes}&ano=${ano}${sp.tipo && sp.tipo !== "todos" ? `&tipo=${sp.tipo}` : ""}${sp.status && sp.status !== "todos" ? `&status=${sp.status}` : ""}${sp.categoriaId ? `&categoriaId=${sp.categoriaId}` : ""}${sp.contaId ? `&contaId=${sp.contaId}` : ""}`}
+            exportUrl={`/api/export/lancamentos?mes=${mes}&ano=${ano}${sp.tipo && sp.tipo !== "todos" ? `&tipo=${sp.tipo}` : ""}${sp.status && sp.status !== "todos" ? `&status=${sp.status}` : ""}${sp.categoriaId ? `&categoriaId=${sp.categoriaId}` : ""}${sp.contaId ? `&contaId=${sp.contaId}` : ""}${sp.busca?.trim() ? `&busca=${encodeURIComponent(sp.busca.trim())}` : ""}`}
             filename={`lancamentos-${meses[mes - 1].toLowerCase()}-${ano}.csv`}
           />
           <NovoLancamentoModal categorias={categorias} contas={contas} />
@@ -149,6 +150,16 @@ export default async function LancamentosPage({
             <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           </div>
         )}
+        <div className="relative ml-auto" onChange={(e) => e.stopPropagation()}>
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            name="busca"
+            type="search"
+            defaultValue={sp.busca ?? ""}
+            placeholder="Buscar descrição…"
+            className="h-9 w-48 rounded-lg border border-input bg-background pl-8 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+          />
+        </div>
       </AutoSubmitForm>
 
       <LancamentosTable lancamentos={lancamentos.map((l) => ({ ...l, valor: Number(l.valor) }))} />
