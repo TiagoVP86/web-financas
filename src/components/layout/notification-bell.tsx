@@ -19,7 +19,8 @@ interface Notificacao {
 export function NotificationBell() {
   const [notifs, setNotifs] = useState<Notificacao[]>([])
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   const unread = notifs.filter((n) => !n.lida).length
 
@@ -41,24 +42,47 @@ export function NotificationBell() {
     return () => clearInterval(interval)
   }, [])
 
-  // Close on outside click
   useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    if (!open) return
+    function handleClose(e: MouseEvent | KeyboardEvent) {
+      if (e instanceof KeyboardEvent) {
+        if (e.key === "Escape") setOpen(false)
+        return
+      }
+      const target = e.target as Node
+      if (buttonRef.current?.contains(target)) return
+      setOpen(false)
     }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
-  }, [])
+    document.addEventListener("mousedown", handleClose)
+    document.addEventListener("keydown", handleClose)
+    return () => {
+      document.removeEventListener("mousedown", handleClose)
+      document.removeEventListener("keydown", handleClose)
+    }
+  }, [open])
+
+  function toggle() {
+    if (open) {
+      setOpen(false)
+      return
+    }
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      const dropdownWidth = 320
+      const left = Math.max(8, Math.min(rect.right - dropdownWidth, window.innerWidth - dropdownWidth - 8))
+      setPos({ top: rect.bottom + 6, left })
+    }
+    setOpen(true)
+    if (unread > 0) markAllRead()
+  }
 
   return (
-    <div ref={ref} className="relative">
+    <>
       <Button
+        ref={buttonRef}
         variant="ghost"
         size="icon"
-        onClick={() => {
-          setOpen((v) => !v)
-          if (!open && unread > 0) markAllRead()
-        }}
+        onClick={toggle}
         title="Notificações"
         className="relative"
       >
@@ -70,8 +94,11 @@ export function NotificationBell() {
         )}
       </Button>
 
-      {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl bg-popover shadow-lg ring-1 ring-foreground/10 overflow-hidden">
+      {open && pos && (
+        <div
+          style={{ top: pos.top, left: pos.left }}
+          className="fixed z-[200] w-80 rounded-xl bg-popover shadow-lg ring-1 ring-foreground/10 overflow-hidden"
+        >
           <div className="flex items-center justify-between border-b px-4 py-3">
             <span className="text-sm font-medium">Notificações</span>
             {notifs.some((n) => !n.lida) && (
@@ -124,6 +151,6 @@ export function NotificationBell() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
