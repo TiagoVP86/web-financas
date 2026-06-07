@@ -98,7 +98,7 @@ export function Sidebar() {
       {/* Desktop sidebar — collapsed (icons only) by default, expands on hover */}
       <aside
         className={cn(
-          "hidden md:flex h-screen flex-shrink-0 flex-col border-r bg-card py-4 transition-all duration-200 overflow-hidden",
+          "hidden md:flex h-screen flex-shrink-0 flex-col border-r bg-card py-4 transition-all duration-200",
           hovered ? "w-56 px-3" : "w-14 px-2"
         )}
         onMouseEnter={() => setHovered(true)}
