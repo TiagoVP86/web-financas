@@ -1,11 +1,13 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { notFound, redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { revalidatePath } from "next/cache"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 export default async function EditarLancamentoPage({
   params,
@@ -90,7 +92,7 @@ export default async function EditarLancamentoPage({
                 <select
                   name="tipo"
                   defaultValue={lancamento.tipo}
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  className="h-9 w-full appearance-none rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="DESPESA">Despesa</option>
                   <option value="RECEITA">Receita</option>
@@ -101,7 +103,7 @@ export default async function EditarLancamentoPage({
                 <select
                   name="status"
                   defaultValue={lancamento.status}
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  className="h-9 w-full appearance-none rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="REALIZADO">Realizado</option>
                   <option value="PENDENTE">Pendente</option>
@@ -115,7 +117,7 @@ export default async function EditarLancamentoPage({
               <select
                 name="categoriaId"
                 defaultValue={lancamento.categoriaId ?? ""}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                className="h-9 w-full appearance-none rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">Sem categoria</option>
                 {categorias.map((c) => (
@@ -132,9 +134,9 @@ export default async function EditarLancamentoPage({
               <Input name="chavePix" defaultValue={lancamento.chavePix ?? ""} />
             </div>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" className="flex-1" formAction="">
-                <a href="/lancamentos">Cancelar</a>
-              </Button>
+              <Link href="/lancamentos" className={cn(buttonVariants({ variant: "outline" }), "flex-1")}>
+                Cancelar
+              </Link>
               <Button type="submit" className="flex-1">Salvar</Button>
             </div>
           </form>
