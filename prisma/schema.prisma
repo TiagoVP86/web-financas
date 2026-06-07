@@ -18,6 +18,7 @@ model User {
   analisesExtrato  AnaliseExtrato[]
   recorrencias     Recorrencia[]
   orcamentos       Orcamento[]
+  parcelamentos    Parcelamento[]
 }
 
 model Categoria {
@@ -31,27 +32,30 @@ model Categoria {
   transacoesExtrato   TransacaoExtrato[]
   recorrencias        Recorrencia[]
   orcamentos          Orcamento[]
+  parcelamentos       Parcelamento[]
 
   @@unique([nome, userId])
 }
 
 model Lancamento {
-  id           String     @id @default(cuid())
-  descricao    String
-  valor        Decimal    @db.Decimal(10, 2)
-  tipo         Tipo
-  data         DateTime
-  status       Status     @default(REALIZADO)
-  codigoBarras String?
-  chavePix     String?
-  pdfUrl       String?
-  categoriaId  String?
-  categoria    Categoria? @relation(fields: [categoriaId], references: [id])
-  userId         String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  recorrenciaId  String?
-  recorrencia    Recorrencia? @relation(fields: [recorrenciaId], references: [id], onDelete: SetNull)
+  id              String        @id @default(cuid())
+  descricao       String
+  valor           Decimal       @db.Decimal(10, 2)
+  tipo            Tipo
+  data            DateTime
+  status          Status        @default(REALIZADO)
+  codigoBarras    String?
+  chavePix        String?
+  pdfUrl          String?
+  categoriaId     String?
+  categoria       Categoria?    @relation(fields: [categoriaId], references: [id])
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+  recorrenciaId   String?
+  recorrencia     Recorrencia?  @relation(fields: [recorrenciaId], references: [id], onDelete: SetNull)
+  parcelamentoId  String?
+  parcelamento    Parcelamento? @relation(fields: [parcelamentoId], references: [id], onDelete: SetNull)
 }
 
 model AnaliseIA {
@@ -113,6 +117,23 @@ model TransacaoExtrato {
   analise       AnaliseExtrato @relation(fields: [analiseId], references: [id], onDelete: Cascade)
 
   @@index([analiseId])
+}
+
+model Parcelamento {
+  id             String     @id @default(cuid())
+  descricao      String
+  valorTotal     Decimal    @db.Decimal(10, 2)
+  valorParcela   Decimal    @db.Decimal(10, 2)
+  numeroParcelas Int
+  dataInicio     DateTime
+  categoriaId    String?
+  categoria      Categoria? @relation(fields: [categoriaId], references: [id])
+  userId         String
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lancamentos    Lancamento[]
+  createdAt      DateTime   @default(now())
+
+  @@index([userId])
 }
 
 model Orcamento {
