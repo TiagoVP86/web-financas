@@ -5,7 +5,8 @@ import { NovoLancamentoModal } from "@/components/lancamentos/novo-lancamento-mo
 import { ExportButton } from "@/components/lancamentos/export-button"
 import { redirect } from "next/navigation"
 import { AutoSubmitForm } from "@/components/ui/auto-submit-form"
-import { ChevronDown, ListFilter, Search } from "lucide-react"
+import { ChevronDown, ListFilter } from "lucide-react"
+import { BuscaInput } from "@/components/lancamentos/busca-input"
 
 export default async function LancamentosPage({
   searchParams,
@@ -150,16 +151,7 @@ export default async function LancamentosPage({
             <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           </div>
         )}
-        <div className="relative ml-auto" onChange={(e) => e.stopPropagation()}>
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            name="busca"
-            type="search"
-            defaultValue={sp.busca ?? ""}
-            placeholder="Buscar descrição…"
-            className="h-9 w-48 rounded-lg border border-input bg-background pl-8 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
-          />
-        </div>
+        <BuscaInput defaultValue={sp.busca} />
       </AutoSubmitForm>
 
       <LancamentosTable lancamentos={lancamentos.map((l) => ({ ...l, valor: Number(l.valor) }))} />
