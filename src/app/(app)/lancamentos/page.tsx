@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { LancamentosTable } from "@/components/lancamentos/lancamentos-table"
 import { NovoLancamentoModal } from "@/components/lancamentos/novo-lancamento-modal"
+import { ExportButton } from "@/components/lancamentos/export-button"
 import { redirect } from "next/navigation"
 import { AutoSubmitForm } from "@/components/ui/auto-submit-form"
 import { ChevronDown, ListFilter } from "lucide-react"
@@ -64,7 +65,13 @@ export default async function LancamentosPage({
             {lancamentos.length} {lancamentos.length === 1 ? "registro" : "registros"} em {meses[mes - 1]} de {ano}
           </p>
         </div>
-        <NovoLancamentoModal categorias={categorias} contas={contas} />
+        <div className="flex items-center gap-2">
+          <ExportButton
+            exportUrl={`/api/export/lancamentos?mes=${mes}&ano=${ano}${sp.tipo && sp.tipo !== "todos" ? `&tipo=${sp.tipo}` : ""}${sp.status && sp.status !== "todos" ? `&status=${sp.status}` : ""}${sp.categoriaId ? `&categoriaId=${sp.categoriaId}` : ""}${sp.contaId ? `&contaId=${sp.contaId}` : ""}`}
+            filename={`lancamentos-${meses[mes - 1].toLowerCase()}-${ano}.csv`}
+          />
+          <NovoLancamentoModal categorias={categorias} contas={contas} />
+        </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
