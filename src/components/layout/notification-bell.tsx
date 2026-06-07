@@ -19,7 +19,7 @@ interface Notificacao {
 export function NotificationBell() {
   const [notifs, setNotifs] = useState<Notificacao[]>([])
   const [open, setOpen] = useState(false)
-  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+  const [pos, setPos] = useState<{ bottom: number; left: number } | null>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -71,19 +71,17 @@ export function NotificationBell() {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect()
       const dropdownWidth = 320
-      const dropdownHeight = 400
 
-      // Prefer right of sidebar; fall back to left if off-screen
+      // Anchor dropdown to right of sidebar
       let left = rect.right + 8
       if (left + dropdownWidth > window.innerWidth - 8) {
         left = Math.max(8, rect.left - dropdownWidth - 8)
       }
 
-      // Prefer bottom-aligned with button (opens upward) — sidebar bell is near bottom
-      let top = rect.bottom - dropdownHeight
-      if (top < 8) top = 8
+      // Use CSS bottom so dropdown grows upward from button level — no height estimate needed
+      const bottom = window.innerHeight - rect.bottom
 
-      setPos({ top, left })
+      setPos({ bottom, left })
     }
     setOpen(true)
     if (unread > 0) markAllRead()
@@ -110,7 +108,7 @@ export function NotificationBell() {
       {open && pos && (
         <div
           ref={dropdownRef}
-          style={{ top: pos.top, left: pos.left }}
+          style={{ bottom: pos.bottom, left: pos.left }}
           className="fixed z-[200] w-80 rounded-xl bg-popover shadow-lg ring-1 ring-foreground/10 overflow-hidden"
         >
           <div className="flex items-center justify-between border-b px-4 py-3">
