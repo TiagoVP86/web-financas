@@ -30,7 +30,7 @@ export function ChartTooltip({ active, label, payload, title }: ChartTooltipProp
   if (!active || !payload?.length) return null
 
   return (
-    <div className="rounded-lg border border-border/60 bg-popover/95 px-3 py-2 text-popover-foreground shadow-lg backdrop-blur-sm">
+    <div className="rounded-lg bg-popover px-3 py-2 text-popover-foreground ring-1 ring-border">
       {label != null && (
         <p className="mb-1.5 text-xs font-medium text-muted-foreground">{label}</p>
       )}

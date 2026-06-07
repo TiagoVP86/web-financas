@@ -1,19 +1,18 @@
 import { cn } from "@/lib/utils"
-import { Trash2 } from "lucide-react"
-import { deletarOrcamento } from "@/actions/orcamento"
+import { DeleteOrcamentoButton } from "./delete-orcamento-button"
 import type { OrcamentoItem } from "@/types/orcamento"
 
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 
 function barColor(pct: number) {
   if (pct >= 100) return "bg-despesa"
-  if (pct >= 80) return "bg-[oklch(var(--alerta))]"
+  if (pct >= 80) return "bg-alerta"
   return "bg-receita"
 }
 
 function statusTextClass(pct: number) {
   if (pct >= 100) return "text-despesa"
-  if (pct >= 80) return "text-[oklch(var(--alerta))]"
+  if (pct >= 80) return "text-alerta"
   return "text-receita"
 }
 
@@ -38,15 +37,7 @@ export function OrcamentoCard({ item }: { item: OrcamentoItem }) {
           <span className={cn("text-xs font-medium", statusTextClass(pctDisplay))}>
             {pctDisplay >= 100 ? "Estourado" : pctDisplay >= 80 ? "Atenção" : `${pctDisplay}%`}
           </span>
-          <form action={deletarOrcamento.bind(null, item.id)}>
-            <button
-              type="submit"
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-              title="Excluir orçamento"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </form>
+          <DeleteOrcamentoButton id={item.id} />
         </div>
       </div>
 

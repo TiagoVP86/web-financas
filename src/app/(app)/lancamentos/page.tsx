@@ -9,7 +9,7 @@ import { ChevronDown, ListFilter } from "lucide-react"
 export default async function LancamentosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mes?: string; tipo?: string; status?: string; categoriaId?: string }>
+  searchParams: Promise<{ mes?: string; tipo?: string; status?: string; categoriaId?: string; contaId?: string }>
 }) {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
@@ -30,14 +30,16 @@ export default async function LancamentosPage({
   if (sp.tipo && sp.tipo !== "todos") where.tipo = sp.tipo
   if (sp.status && sp.status !== "todos") where.status = sp.status
   if (sp.categoriaId) where.categoriaId = sp.categoriaId
+  if (sp.contaId) where.contaId = sp.contaId
 
-  const [lancamentos, categorias] = await Promise.all([
+  const [lancamentos, categorias, contas] = await Promise.all([
     db.lancamento.findMany({
       where,
-      include: { categoria: true },
+      include: { categoria: true, conta: { select: { id: true, nome: true } } },
       orderBy: { data: "desc" },
     }),
     db.categoria.findMany({ where: { userId }, orderBy: { nome: "asc" } }),
+    db.conta.findMany({ where: { userId }, orderBy: { nome: "asc" }, select: { id: true, nome: true } }),
   ])
 
   const meses = [
@@ -62,7 +64,7 @@ export default async function LancamentosPage({
             {lancamentos.length} {lancamentos.length === 1 ? "registro" : "registros"} em {meses[mes - 1]} de {ano}
           </p>
         </div>
-        <NovoLancamentoModal categorias={categorias} />
+        <NovoLancamentoModal categorias={categorias} contas={contas} />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
@@ -120,6 +122,17 @@ export default async function LancamentosPage({
           </select>
           <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         </div>
+        {contas.length > 0 && (
+          <div className="relative">
+            <select name="contaId" defaultValue={sp.contaId ?? ""} className={selectClass}>
+              <option value="">Todas as contas</option>
+              {contas.map((c) => (
+                <option key={c.id} value={c.id}>{c.nome}</option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          </div>
+        )}
       </AutoSubmitForm>
 
       <LancamentosTable lancamentos={lancamentos.map((l) => ({ ...l, valor: Number(l.valor) }))} />

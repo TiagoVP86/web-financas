@@ -69,10 +69,6 @@ export default async function OrcamentoPage({
 
   // summary
   const totalLimite = items.reduce((s, i) => s + i.limite, 0)
-  const totalGasto = items.reduce((s, i) => {
-    // avoid double-counting: if there's a "geral" budget, skip per-category items from total
-    return s + i.gasto
-  }, 0)
 
   // prev / next month navigation
   const prevDate = new Date(ano, mes - 2, 1)
@@ -123,7 +119,7 @@ export default async function OrcamentoPage({
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: "Total orçado", value: fmt(totalLimite), cls: "text-foreground" },
-            { label: "Total gasto", value: fmt(totalGasto), cls: "text-despesa" },
+            { label: "Total gasto", value: fmt(totalDespesas), cls: "text-despesa" },
             {
               label: "Disponível",
               value: fmt(Math.max(totalLimite - totalDespesas, 0)),

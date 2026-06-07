@@ -38,6 +38,7 @@ const lancamentoSchema = z.object({
   codigoBarras: z.string().optional(),
   chavePix:     z.string().optional(),
   categoriaId:  z.string().optional(),
+  contaId:      z.string().optional(),
   pdfUrl:       z.string().optional(),
 })
 
@@ -52,6 +53,7 @@ export async function criarLancamento(formData: FormData) {
     codigoBarras: formData.get("codigoBarras") || undefined,
     chavePix:     formData.get("chavePix") || undefined,
     categoriaId:  formData.get("categoriaId") || undefined,
+    contaId:      formData.get("contaId") || undefined,
     pdfUrl:       formData.get("pdfUrl") || undefined,
   })
   if (!parsed.success) return { error: "Dados inválidos" }
@@ -62,6 +64,11 @@ export async function criarLancamento(formData: FormData) {
       select: { id: true },
     })
     if (!cat) return { error: "Categoria inválida" }
+  }
+
+  if (parsed.data.contaId) {
+    const conta = await db.conta.findFirst({ where: { id: parsed.data.contaId, userId }, select: { id: true } })
+    if (!conta) return { error: "Conta inválida" }
   }
 
   await db.lancamento.create({
@@ -75,6 +82,7 @@ export async function criarLancamento(formData: FormData) {
       chavePix:     parsed.data.chavePix ?? null,
       pdfUrl:       parsed.data.pdfUrl ?? null,
       categoriaId:  parsed.data.categoriaId ?? null,
+      contaId:      parsed.data.contaId ?? null,
       userId,
     },
   })

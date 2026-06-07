@@ -81,4 +81,5 @@ export async function gerarAnalise() {
   const result = await analyzeFinances(JSON.stringify(summary, null, 2))
   await db.analiseIA.create({ data: { conteudo: JSON.stringify(result), userId } })
   revalidatePath("/ia")
+  return { success: true }
 }

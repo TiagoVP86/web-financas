@@ -19,11 +19,17 @@ interface Categoria {
   nome: string
 }
 
-interface NovoLancamentoModalProps {
-  categorias: Categoria[]
+interface Conta {
+  id: string
+  nome: string
 }
 
-export function NovoLancamentoModal({ categorias }: NovoLancamentoModalProps) {
+interface NovoLancamentoModalProps {
+  categorias: Categoria[]
+  contas: Conta[]
+}
+
+export function NovoLancamentoModal({ categorias, contas }: NovoLancamentoModalProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -42,7 +48,7 @@ export function NovoLancamentoModal({ categorias }: NovoLancamentoModalProps) {
             <TabsTrigger value="pdf" className="flex-1">Upload PDF</TabsTrigger>
           </TabsList>
           <TabsContent value="manual" className="mt-4">
-            <ManualFormTab categorias={categorias} onSuccess={() => setOpen(false)} />
+            <ManualFormTab categorias={categorias} contas={contas} onSuccess={() => setOpen(false)} />
           </TabsContent>
           <TabsContent value="pdf" className="mt-4">
             <PdfUploadTab categorias={categorias} onSuccess={() => setOpen(false)} />

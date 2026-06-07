@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Copy, Check, Trash2, Pencil, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { Copy, Check, Trash2, Pencil, ArrowUpRight, ArrowDownRight, Landmark } from "lucide-react"
 import { toast } from "sonner"
 import { marcarComoPago, deletarLancamento } from "@/actions/lancamentos"
 import Link from "next/link"
@@ -71,17 +71,25 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
 
       {/* Categoria + status */}
       <div className="flex items-center justify-between gap-2">
-        {l.categoria ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
-            <span
-              className="h-2 w-2 rounded-full"
-              style={{ background: l.categoria.cor }}
-            />
-            {l.categoria.nome}
-          </span>
-        ) : (
-          <span className="text-xs text-muted-foreground">Sem categoria</span>
-        )}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {l.categoria ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: l.categoria.cor }}
+              />
+              {l.categoria.nome}
+            </span>
+          ) : (
+            <span className="text-xs text-muted-foreground">Sem categoria</span>
+          )}
+          {l.conta && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+              <Landmark className="h-3 w-3" />
+              {l.conta.nome}
+            </span>
+          )}
+        </div>
         <StatusBadge status={l.status} />
       </div>
 

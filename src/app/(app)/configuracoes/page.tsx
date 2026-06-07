@@ -55,7 +55,7 @@ export default async function ConfiguracoesPage() {
               {categorias.map((c) => (
                 <div
                   key={c.id}
-                  className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 transition-colors hover:bg-muted/40"
+                  className="flex items-center justify-between rounded-lg ring-1 ring-border/60 px-3 py-2 transition-colors hover:bg-muted/40"
                 >
                   <div className="flex items-center gap-3">
                     <span

@@ -35,6 +35,7 @@ export interface LancamentoRow {
   codigoBarras: string | null
   chavePix: string | null
   categoria: { nome: string; cor: string } | null
+  conta: { id: string; nome: string } | null
 }
 
 interface LancamentosTableProps {
@@ -101,7 +102,12 @@ export function LancamentosTable({ lancamentos }: LancamentosTableProps) {
                         <ArrowDownRight className="h-4 w-4" />
                       )}
                     </span>
-                    <span className="font-medium">{l.descricao}</span>
+                    <div className="min-w-0">
+                      <span className="font-medium">{l.descricao}</span>
+                      {l.conta && (
+                        <p className="text-xs text-muted-foreground">{l.conta.nome}</p>
+                      )}
+                    </div>
                   </div>
                 </td>
                 <td className="px-4 py-3">

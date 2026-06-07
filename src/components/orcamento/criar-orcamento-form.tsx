@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react"
 import { criarOrcamento } from "@/actions/orcamento"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,7 +26,10 @@ export function CriarOrcamentoForm({ categorias, mes, ano }: Props) {
   const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
-    if (state && "success" in state) formRef.current?.reset()
+    if (state && "success" in state) {
+      formRef.current?.reset()
+      toast.success("Orçamento adicionado")
+    }
   }, [state])
 
   return (

@@ -26,7 +26,7 @@ export function ExtratoResumoCard({ analise }: ExtratoResumoCardProps) {
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">{analise.resumo}</p>
         <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-lg border p-3 text-center">
+          <div className="rounded-lg ring-1 ring-foreground/10 p-3 text-center">
             <div className="flex items-center justify-center gap-1 text-receita">
               <TrendingUp className="h-3 w-3" />
               <span className="text-xs font-medium">Receitas</span>
@@ -35,7 +35,7 @@ export function ExtratoResumoCard({ analise }: ExtratoResumoCardProps) {
               {fmt(analise.totalReceitas)}
             </p>
           </div>
-          <div className="rounded-lg border p-3 text-center">
+          <div className="rounded-lg ring-1 ring-foreground/10 p-3 text-center">
             <div className="flex items-center justify-center gap-1 text-despesa">
               <TrendingDown className="h-3 w-3" />
               <span className="text-xs font-medium">Despesas</span>
@@ -44,12 +44,12 @@ export function ExtratoResumoCard({ analise }: ExtratoResumoCardProps) {
               {fmt(analise.totalDespesas)}
             </p>
           </div>
-          <div className="rounded-lg border p-3 text-center">
+          <div className="rounded-lg ring-1 ring-foreground/10 p-3 text-center">
             <div className="flex items-center justify-center gap-1 text-muted-foreground">
               <Minus className="h-3 w-3" />
               <span className="text-xs font-medium">Saldo</span>
             </div>
-            <p className={cn("mt-1 text-sm font-bold", analise.saldo >= 0 ? "text-receita" : "text-despesa")}>
+            <p className={cn("mt-1 text-sm font-bold", analise.saldo > 0 ? "text-receita" : analise.saldo < 0 ? "text-despesa" : "text-foreground")}>
               {fmt(analise.saldo)}
             </p>
           </div>

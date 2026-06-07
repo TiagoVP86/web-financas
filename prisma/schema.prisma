@@ -19,6 +19,7 @@ model User {
   recorrencias     Recorrencia[]
   orcamentos       Orcamento[]
   parcelamentos    Parcelamento[]
+  contas           Conta[]
 }
 
 model Categoria {
@@ -49,6 +50,8 @@ model Lancamento {
   pdfUrl          String?
   categoriaId     String?
   categoria       Categoria?    @relation(fields: [categoriaId], references: [id])
+  contaId         String?
+  conta           Conta?        @relation(fields: [contaId], references: [id], onDelete: SetNull)
   userId          String
   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt       DateTime      @default(now())
@@ -119,6 +122,21 @@ model TransacaoExtrato {
   @@index([analiseId])
 }
 
+model Conta {
+  id           String     @id @default(cuid())
+  nome         String
+  tipo         TipoConta
+  saldoInicial Decimal    @db.Decimal(10, 2) @default(0)
+  cor          String     @default("#6366f1")
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lancamentos  Lancamento[]
+  createdAt    DateTime   @default(now())
+
+  @@unique([nome, userId])
+  @@index([userId])
+}
+
 model Parcelamento {
   id             String     @id @default(cuid())
   descricao      String
@@ -162,6 +180,14 @@ enum Status {
   PAGO
   VENCIDO
   REALIZADO
+}
+
+enum TipoConta {
+  CORRENTE
+  POUPANCA
+  INVESTIMENTO
+  CARTAO
+  DINHEIRO
 }
 
 enum Frequencia {

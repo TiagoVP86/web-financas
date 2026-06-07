@@ -26,18 +26,25 @@ export default async function EditarLancamentoPage({
   })
   if (!lancamento) notFound()
 
-  const categorias = await db.categoria.findMany({
-    where: { userId },
-    orderBy: { nome: "asc" },
-  })
+  const [categorias, contas] = await Promise.all([
+    db.categoria.findMany({ where: { userId }, orderBy: { nome: "asc" } }),
+    db.conta.findMany({ where: { userId }, orderBy: { nome: "asc" }, select: { id: true, nome: true } }),
+  ])
 
   async function atualizar(formData: FormData) {
     "use server"
     const session = await auth()
     if (!session?.user?.id) redirect("/login")
+    const uid = session.user.id
+
+    const contaId = (formData.get("contaId") as string) || null
+    if (contaId) {
+      const owned = await db.conta.findFirst({ where: { id: contaId, userId: uid }, select: { id: true } })
+      if (!owned) return
+    }
 
     await db.lancamento.updateMany({
-      where: { id, userId: session.user.id },
+      where: { id, userId: uid },
       data: {
         descricao:    formData.get("descricao") as string,
         valor:        parseFloat(formData.get("valor") as string),
@@ -47,6 +54,7 @@ export default async function EditarLancamentoPage({
         codigoBarras: (formData.get("codigoBarras") as string) || null,
         chavePix:     (formData.get("chavePix") as string) || null,
         categoriaId:  (formData.get("categoriaId") as string) || null,
+        contaId,
       },
     })
     revalidatePath("/lancamentos")
@@ -125,6 +133,21 @@ export default async function EditarLancamentoPage({
                 ))}
               </select>
             </div>
+            {contas.length > 0 && (
+              <div className="space-y-1">
+                <Label>Conta</Label>
+                <select
+                  name="contaId"
+                  defaultValue={lancamento.contaId ?? ""}
+                  className="h-9 w-full appearance-none rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="">Sem conta</option>
+                  {contas.map((c) => (
+                    <option key={c.id} value={c.id}>{c.nome}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="space-y-1">
               <Label>Código de Barras</Label>
               <Input name="codigoBarras" defaultValue={lancamento.codigoBarras ?? ""} />

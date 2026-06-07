@@ -2,8 +2,7 @@ import { cn } from "@/lib/utils"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { AnaliseCard } from "@/components/ia/analise-card"
-import { gerarAnalise } from "@/actions/ia"
-import { Button } from "@/components/ui/button"
+import { AnalyzeForm } from "@/components/ia/analyze-form"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Sparkles, ArrowUpRight, ArrowDownRight } from "lucide-react"
@@ -69,12 +68,7 @@ export default async function IAPage() {
             </p>
           </div>
         </div>
-        <form action={gerarAnalise as unknown as (formData: FormData) => Promise<void>}>
-          <Button type="submit">
-            <Sparkles className="mr-2 h-4 w-4" />
-            Analisar agora
-          </Button>
-        </form>
+        <AnalyzeForm />
       </div>
 
       {/* Lançamentos considerados na análise */}

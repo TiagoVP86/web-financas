@@ -40,7 +40,7 @@ function StatCard({ title, value, icon: Icon, iconClass, valueClass, delta, good
 
   const content = (
     <Card className={cn(
-      "transition-[box-shadow]",
+      "transition-shadow duration-150",
       href && "cursor-pointer group-hover:ring-2 group-hover:ring-primary/30"
     )}>
       <CardContent className="flex flex-col gap-3">
@@ -94,19 +94,22 @@ function SaldoHeroCard({
   delta?: number | null
   mes: number
 }) {
-  const positive = saldo >= 0
+  const positive = saldo > 0
+  const negative = saldo < 0
   const up = (delta ?? 0) >= 0
   const showDelta = delta != null && Number.isFinite(delta)
 
   return (
     <Link href={`/lancamentos?mes=${mes}`} className="group block">
-      <Card className="relative overflow-hidden transition-[box-shadow] group-hover:ring-2 group-hover:ring-primary/30">
+      <Card className="relative overflow-hidden transition-shadow duration-150 group-hover:ring-2 group-hover:ring-primary/30">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background: positive
               ? "linear-gradient(135deg, oklch(0.60 0.17 162 / 0.07) 0%, transparent 55%)"
-              : "linear-gradient(135deg, oklch(0.55 0.246 16 / 0.07) 0%, transparent 55%)",
+              : negative
+              ? "linear-gradient(135deg, oklch(0.55 0.246 16 / 0.07) 0%, transparent 55%)"
+              : undefined,
           }}
         />
         <CardContent className="relative flex flex-wrap items-center justify-between gap-4 py-6">
@@ -114,7 +117,7 @@ function SaldoHeroCard({
             <p className="text-sm font-medium text-muted-foreground">Saldo do mês</p>
             <div className={cn(
               "text-4xl font-bold tracking-tight tabular-nums",
-              positive ? "text-receita" : "text-despesa"
+              positive ? "text-receita" : negative ? "text-despesa" : "text-foreground"
             )}>
               {fmt(saldo)}
             </div>

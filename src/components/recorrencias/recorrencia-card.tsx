@@ -59,6 +59,7 @@ export function RecorrenciaCard({ recorrencia: r, onEdit, onRefresh }: Props) {
     try {
       const res = await fetch(`/api/recorrencias/${r.id}/toggle`, { method: "POST" })
       if (!res.ok) throw new Error()
+      toast.success(r.ativa ? "Recorrência pausada" : "Recorrência ativada")
       await onRefresh()
     } catch {
       toast.error("Erro ao atualizar recorrência")
@@ -73,8 +74,8 @@ export function RecorrenciaCard({ recorrencia: r, onEdit, onRefresh }: Props) {
   const isReceita = r.tipo === "RECEITA"
 
   return (
-    <Card className={cn("flex flex-col gap-0 transition-[outline] hover:ring-2 hover:ring-primary/30", !r.ativa && "opacity-60")}>
-      <CardContent className="flex flex-1 flex-col gap-3 pt-4">
+    <Card className={cn("flex flex-col gap-0 transition-shadow duration-150 hover:ring-2 hover:ring-primary/30", !r.ativa && "opacity-60")}>
+      <CardContent className="flex flex-1 flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-start gap-3">
             <span

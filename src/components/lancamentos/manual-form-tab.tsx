@@ -12,12 +12,18 @@ interface Categoria {
   nome: string
 }
 
+interface Conta {
+  id: string
+  nome: string
+}
+
 interface ManualFormTabProps {
   categorias: Categoria[]
+  contas: Conta[]
   onSuccess: () => void
 }
 
-export function ManualFormTab({ categorias, onSuccess }: ManualFormTabProps) {
+export function ManualFormTab({ categorias, contas, onSuccess }: ManualFormTabProps) {
   const ref = useRef<HTMLFormElement>(null)
 
   async function handleSubmit(formData: FormData) {
@@ -92,6 +98,21 @@ export function ManualFormTab({ categorias, onSuccess }: ManualFormTabProps) {
           ))}
         </select>
       </div>
+
+      {contas.length > 0 && (
+        <div className="space-y-1">
+          <Label>Conta</Label>
+          <select
+            name="contaId"
+            className="h-9 w-full appearance-none rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">Sem conta</option>
+            {contas.map((c) => (
+              <option key={c.id} value={c.id}>{c.nome}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="space-y-1">
         <Label>Código de Barras (opcional)</Label>

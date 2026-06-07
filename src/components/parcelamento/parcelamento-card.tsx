@@ -1,8 +1,21 @@
 "use client"
 
+import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Trash2, CreditCard } from "lucide-react"
 import { toast } from "sonner"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
 import type { ParcelamentoItem } from "@/types/parcelamento"
 
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
@@ -22,15 +35,17 @@ export function ParcelamentoCard({ item, onDelete }: Props) {
   const gastas = item.pagas * item.valorParcela
   const restante = item.valorTotal - gastas
   const concluido = item.pagas >= item.numeroParcelas
+  const [deleting, setDeleting] = useState(false)
 
   async function handleDelete() {
-    if (!confirm(`Excluir "${item.descricao}" e todos os lançamentos associados?`)) return
+    setDeleting(true)
     const res = await fetch(`/api/parcelamentos/${item.id}`, { method: "DELETE" })
     if (res.ok) {
       toast.success("Parcelamento excluído")
       onDelete(item.id)
     } else {
       toast.error("Erro ao excluir")
+      setDeleting(false)
     }
   }
 
@@ -57,13 +72,38 @@ export function ParcelamentoCard({ item, onDelete }: Props) {
               {item.pagas}/{item.numeroParcelas}
             </span>
           )}
-          <button
-            onClick={handleDelete}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-            title="Excluir parcelamento"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+          <AlertDialog>
+            <AlertDialogTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                  title="Excluir parcelamento"
+                  disabled={deleting}
+                />
+              }
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir parcelamento?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  &ldquo;{item.descricao}&rdquo; e todos os lançamentos associados serão removidos.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={handleDelete}
+                >
+                  Excluir parcelamento
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 

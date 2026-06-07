@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState, useEffect, useRef } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,6 +14,7 @@ export function CriarCategoriaForm() {
   useEffect(() => {
     if (state && "success" in state) {
       formRef.current?.reset()
+      toast.success("Categoria adicionada")
     }
   }, [state])
 

@@ -1,6 +1,7 @@
 "use client"
 
-import { useActionState, useState } from "react"
+import { useActionState, useEffect, useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,6 +19,10 @@ export function ProfileForm({ name }: Props) {
 
   const isSuccess = state && "success" in state
   const error = state && "error" in state ? state.error : null
+
+  useEffect(() => {
+    if (isSuccess) toast.success("Perfil atualizado")
+  }, [isSuccess])
 
   return (
     <form action={action} className="space-y-4">
@@ -71,7 +76,7 @@ export function ProfileForm({ name }: Props) {
         </p>
       )}
       {isSuccess && (
-        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-400">
+        <p className="rounded-lg ring-1 ring-receita/30 bg-receita/10 px-3 py-2 text-sm text-receita">
           Perfil atualizado com sucesso.
         </p>
       )}

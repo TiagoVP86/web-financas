@@ -80,9 +80,8 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
 
   function handleFrequenciaChange(v: string | null) {
     if (!v) return
-    const f = v as Frequencia
-    setFrequencia(f)
-    setDiaVencimento(f === "SEMANAL" ? 1 : 1)
+    setFrequencia(v as Frequencia)
+    setDiaVencimento(1)
   }
 
   async function handleSave() {
@@ -279,6 +278,9 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
                   <SelectItem value="todos">Todos os lançamentos pendentes</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">
+                Lançamentos já pagos ou realizados não são alterados.
+              </p>
             </div>
           )}
 
