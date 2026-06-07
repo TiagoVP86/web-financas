@@ -3,6 +3,7 @@ import { db } from "@/lib/db"
 import { gerarLancamentos } from "@/lib/recorrencia"
 import { SummaryCards } from "@/components/dashboard/summary-cards"
 import { MonthlyChart } from "@/components/dashboard/monthly-chart"
+import { PatrimonioChart } from "@/components/dashboard/patrimonio-chart"
 import { UpcomingBills } from "@/components/dashboard/upcoming-bills"
 import { buttonVariants } from "@/components/ui/button"
 import Link from "next/link"
@@ -46,7 +47,13 @@ export default async function DashboardPage({
   const displayDate = format(now, "EEEE, d 'de' MMMM", { locale: ptBR })
   const dateLabel = displayDate.charAt(0).toUpperCase() + displayDate.slice(1)
 
-  const [lancamentos, pendentes, monthlyRaw] = await Promise.all([
+  const historyMonths = Array.from({ length: 12 }, (_, i) => {
+    const d = subMonths(now, 11 - i)
+    return { start: startOfMonth(d), end: endOfMonth(d), label: format(d, "MMM/yy", { locale: ptBR }) }
+  })
+  const historyWindowStart = historyMonths[0].start
+
+  const [lancamentos, pendentes, monthlyRaw, contasAgg, baseLancs, historyMonthly] = await Promise.all([
     db.lancamento.findMany({
       where: { userId, data: { gte: monthStart, lte: monthEnd } },
     }),
@@ -74,7 +81,35 @@ export default async function DashboardPage({
           }))
       })
     ),
+    db.conta.aggregate({ _sum: { saldoInicial: true }, where: { userId } }),
+    db.lancamento.groupBy({
+      by: ["tipo"],
+      where: { userId, data: { lt: historyWindowStart } },
+      _sum: { valor: true },
+    }),
+    Promise.all(
+      historyMonths.map(({ start, end }) =>
+        db.lancamento.groupBy({
+          by: ["tipo"],
+          where: { userId, data: { gte: start, lte: end } },
+          _sum: { valor: true },
+        })
+      )
+    ),
   ])
+
+  let runningPatrimonio =
+    Number(contasAgg._sum.saldoInicial ?? 0) +
+    Number(baseLancs.find((r) => r.tipo === "RECEITA")?._sum.valor ?? 0) -
+    Number(baseLancs.find((r) => r.tipo === "DESPESA")?._sum.valor ?? 0)
+
+  const patrimonioData = historyMonths.map(({ label }, i) => {
+    const rows = historyMonthly[i]
+    runningPatrimonio +=
+      Number(rows.find((r) => r.tipo === "RECEITA")?._sum.valor ?? 0) -
+      Number(rows.find((r) => r.tipo === "DESPESA")?._sum.valor ?? 0)
+    return { mes: label, saldo: runningPatrimonio }
+  })
 
   const receitas = lancamentos.filter((l) => l.tipo === "RECEITA").reduce((s, l) => s + Number(l.valor), 0)
   const despesas = lancamentos.filter((l) => l.tipo === "DESPESA").reduce((s, l) => s + Number(l.valor), 0)
@@ -140,6 +175,8 @@ export default async function DashboardPage({
         <MonthlyChart data={monthlyRaw} />
         <UpcomingBills bills={pendentes.map((l) => ({ ...l, valor: Number(l.valor) }))} />
       </div>
+
+      <PatrimonioChart data={patrimonioData} />
     </div>
   )
 }
