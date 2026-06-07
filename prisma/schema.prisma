@@ -17,6 +17,7 @@ model User {
   analisesIA       AnaliseIA[]
   analisesExtrato  AnaliseExtrato[]
   recorrencias     Recorrencia[]
+  orcamentos       Orcamento[]
 }
 
 model Categoria {
@@ -29,6 +30,7 @@ model Categoria {
   lancamentos         Lancamento[]
   transacoesExtrato   TransacaoExtrato[]
   recorrencias        Recorrencia[]
+  orcamentos          Orcamento[]
 
   @@unique([nome, userId])
 }
@@ -111,6 +113,22 @@ model TransacaoExtrato {
   analise       AnaliseExtrato @relation(fields: [analiseId], references: [id], onDelete: Cascade)
 
   @@index([analiseId])
+}
+
+model Orcamento {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoriaId String?
+  categoria   Categoria? @relation(fields: [categoriaId], references: [id])
+  limite      Decimal    @db.Decimal(10, 2)
+  mes         Int
+  ano         Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([userId, categoriaId, mes, ano])
+  @@index([userId])
 }
 
 enum Tipo {
