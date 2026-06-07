@@ -20,6 +20,7 @@ import {
   PiggyBank,
   CreditCard,
   Landmark,
+  Target,
 } from "lucide-react"
 import { useState } from "react"
 
@@ -49,6 +50,7 @@ const navItems = [
   { href: "/orcamento",     label: "Orçamento",     icon: PiggyBank },
   { href: "/parcelamento",  label: "Parcelamentos", icon: CreditCard },
   { href: "/contas",        label: "Contas",        icon: Landmark },
+  { href: "/metas",         label: "Metas",         icon: Target },
   { href: "/relatorios",    label: "Relatórios",    icon: BarChart3 },
   { href: "/ia",            label: "Análise IA",    icon: Sparkles },
   { href: "/extrato",       label: "Extrato",       icon: FileSearch },

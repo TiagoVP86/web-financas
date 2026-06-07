@@ -1,0 +1,31 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e9]:
+        - heading "Minhas Finanças" [level=1] [ref=e10]
+        - paragraph [ref=e11]: Controle financeiro pessoal
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - heading "Entrar" [level=2] [ref=e14]
+        - paragraph [ref=e15]: Acesse sua conta
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: Email
+          - textbox "Email" [ref=e19]
+        - generic [ref=e20]:
+          - generic [ref=e21]: Senha
+          - generic [ref=e22]:
+            - textbox "Senha" [ref=e23]
+            - button "Mostrar senha" [ref=e24]:
+              - img [ref=e25]
+        - paragraph [ref=e41]: Email ou senha incorretos
+        - button "Entrar" [ref=e28]
+      - paragraph [ref=e29]:
+        - text: Não tem conta?
+        - link "Cadastre-se" [ref=e30] [cursor=pointer]:
+          - /url: /cadastro
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e36] [cursor=pointer]:
+    - img [ref=e37]
+  - alert [ref=e40]
