@@ -20,7 +20,7 @@ export const TIPO_CONTA_LABELS: Record<TipoConta, string> = {
 }
 
 export const COR_PRESETS = [
-  "#6366f1", // violet
+  "#059669", // emerald
   "#10b981", // emerald
   "#f59e0b", // amber
   "#ef4444", // red

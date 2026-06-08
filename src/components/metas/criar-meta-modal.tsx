@@ -78,7 +78,7 @@ export function CriarMetaModal({ open, onClose, onCreated }: Props) {
                 id="meta-cor"
                 name="cor"
                 type="color"
-                defaultValue="#6366f1"
+                defaultValue="#059669"
                 className="h-9 w-full p-1"
               />
             </div>

@@ -1,6 +1,14 @@
 "use client"
 
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartTooltip, fmtBRLShort } from "@/components/charts/chart-helpers"
 
@@ -30,31 +38,63 @@ export function MonthlyBarChart({ data }: MonthlyBarChartProps) {
             Sem lançamentos nos últimos 12 meses.
           </p>
         ) : (
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 4 }} barGap={4}>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis
-              dataKey="mes"
-              tickLine={false}
-              axisLine={false}
-              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-              dy={6}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              width={48}
-              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-              tickFormatter={fmtBRLShort}
-            />
-            <Tooltip
-              cursor={{ fill: "var(--muted)", opacity: 0.4, radius: 6 }}
-              content={<ChartTooltip />}
-            />
-            <Bar dataKey="receitas" name="Receitas" fill="var(--receita)" radius={[6, 6, 0, 0]} maxBarSize={28} />
-            <Bar dataKey="despesas" name="Despesas" fill="var(--despesa)" radius={[6, 6, 0, 0]} maxBarSize={28} />
-          </BarChart>
-        </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 4 }}>
+              <defs>
+                <linearGradient id="relReceitas" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--receita)" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="var(--receita)" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="relDespesas" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--despesa)" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="var(--despesa)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                vertical={false}
+                strokeDasharray="3 3"
+                stroke="var(--border)"
+              />
+              <XAxis
+                dataKey="mes"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                dy={8}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                width={48}
+                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                tickFormatter={fmtBRLShort}
+              />
+              <Tooltip
+                cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
+                content={<ChartTooltip />}
+              />
+              <Area
+                type="monotone"
+                dataKey="receitas"
+                name="Receitas"
+                stroke="var(--receita)"
+                strokeWidth={2.5}
+                fill="url(#relReceitas)"
+                dot={false}
+                activeDot={{ r: 4, strokeWidth: 0 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="despesas"
+                name="Despesas"
+                stroke="var(--despesa)"
+                strokeWidth={2.5}
+                fill="url(#relDespesas)"
+                dot={false}
+                activeDot={{ r: 4, strokeWidth: 0 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         )}
       </CardContent>
     </Card>

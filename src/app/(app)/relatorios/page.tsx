@@ -128,7 +128,11 @@ export default async function RelatoriosPage({
         </CardHeader>
         <CardContent>
           {pieData.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Sem despesas no período.</p>
+            <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/assets/ilustracoes/sem-grafico.svg" alt="" aria-hidden="true" className="h-20 w-20 opacity-80" />
+              <p className="text-sm text-muted-foreground">Sem despesas no período.</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">

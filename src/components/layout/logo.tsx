@@ -5,21 +5,17 @@ interface LogoMarkProps {
   size?: number
 }
 
-export function LogoMark({ className, size = 24 }: LogoMarkProps) {
+export function LogoMark({ className, size = 28 }: LogoMarkProps) {
   return (
-    <svg
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/assets/icon/icon-grafico.svg"
+      alt=""
+      aria-hidden="true"
       width={size}
       height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("text-primary", className)}
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="7" y="9.5" width="10" height="2" rx="1" fill="currentColor" />
-      <rect x="7" y="12.5" width="7" height="2" rx="1" fill="currentColor" />
-    </svg>
+      className={cn("rounded-lg shrink-0", className)}
+    />
   )
 }
 
@@ -30,14 +26,22 @@ interface WordmarkProps {
 
 export function Wordmark({ collapsed = false, className }: WordmarkProps) {
   if (collapsed) {
-    return <LogoMark size={22} className={className} />
+    return <LogoMark size={28} className={className} />
   }
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <LogoMark size={20} />
-      <span className="text-sm font-semibold tracking-tight whitespace-nowrap">
-        Minhas <span className="text-primary">Finanças</span>
-      </span>
+    <div className={cn("flex items-center", className)}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/assets/logo/logo-light.png"
+        alt="Finanças+"
+        className="h-7 w-auto dark:hidden"
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/assets/logo/logo-dark.png"
+        alt="Finanças+"
+        className="h-7 w-auto hidden dark:block"
+      />
     </div>
   )
 }

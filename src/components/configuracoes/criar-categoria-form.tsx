@@ -32,7 +32,7 @@ export function CriarCategoriaForm() {
           <Input
             name="cor"
             type="color"
-            defaultValue="#6366f1"
+            defaultValue="#059669"
             className="h-9 w-16 p-1"
             required
           />

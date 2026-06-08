@@ -17,10 +17,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
-import { Copy, Check, Trash2, Pencil, ArrowUpRight, ArrowDownRight, Inbox } from "lucide-react"
+import { Copy, Check, Trash2, Pencil, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { toast } from "sonner"
 import { marcarComoPago, deletarLancamento } from "@/actions/lancamentos"
 import Link from "next/link"
+import { CategoryIcon } from "@/components/ui/category-icon"
 
 type Status = "PENDENTE" | "PAGO" | "VENCIDO" | "REALIZADO"
 type Tipo = "RECEITA" | "DESPESA"
@@ -34,7 +35,7 @@ export interface LancamentoRow {
   status: Status
   codigoBarras: string | null
   chavePix: string | null
-  categoria: { nome: string; cor: string } | null
+  categoria: { nome: string; cor: string; icone?: string | null } | null
   conta: { id: string; nome: string } | null
 }
 
@@ -54,10 +55,9 @@ export function LancamentosTable({ lancamentos }: LancamentosTableProps) {
 
   if (lancamentos.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-card p-12 text-center ring-1 ring-foreground/10">
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-          <Inbox className="h-6 w-6" />
-        </span>
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl bg-card p-12 text-center ring-1 ring-foreground/10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/assets/ilustracoes/sem-transacoes.svg" alt="" aria-hidden="true" className="h-24 w-24 opacity-80" />
         <p className="text-sm text-muted-foreground">Nenhum lançamento encontrado para os filtros selecionados.</p>
       </div>
     )
@@ -113,10 +113,9 @@ export function LancamentosTable({ lancamentos }: LancamentosTableProps) {
                 <td className="px-4 py-3">
                   {l.categoria ? (
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
-                      <span
-                        className="h-2 w-2 rounded-full"
-                        style={{ background: l.categoria.cor }}
-                      />
+                      <span style={{ color: l.categoria.cor }}>
+                        <CategoryIcon slug={l.categoria.icone} size={13} />
+                      </span>
                       {l.categoria.nome}
                     </span>
                   ) : (

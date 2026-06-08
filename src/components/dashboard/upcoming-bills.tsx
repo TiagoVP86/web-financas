@@ -41,8 +41,9 @@ export function UpcomingBills({ bills }: UpcomingBillsProps) {
       </CardHeader>
       <CardContent>
         {bills.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-            <CalendarClock className="h-8 w-8 text-muted-foreground/40" />
+          <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/assets/ilustracoes/tudo-em-dia.svg" alt="" aria-hidden="true" className="h-20 w-20 opacity-80" />
             <p className="text-sm text-muted-foreground">Nenhuma conta pendente.</p>
           </div>
         ) : (

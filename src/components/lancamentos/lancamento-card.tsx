@@ -21,6 +21,7 @@ import { marcarComoPago, deletarLancamento } from "@/actions/lancamentos"
 import Link from "next/link"
 import { StatusBadge } from "./status-badge"
 import type { LancamentoRow } from "./lancamentos-table"
+import { CategoryIcon } from "@/components/ui/category-icon"
 
 interface LancamentoCardProps {
   lancamento: LancamentoRow
@@ -74,10 +75,9 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
         <div className="flex items-center gap-1.5 flex-wrap">
           {l.categoria ? (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
-              <span
-                className="h-2 w-2 rounded-full"
-                style={{ background: l.categoria.cor }}
-              />
+              <span style={{ color: l.categoria.cor }}>
+                <CategoryIcon slug={l.categoria.icone} size={13} />
+              </span>
               {l.categoria.nome}
             </span>
           ) : (

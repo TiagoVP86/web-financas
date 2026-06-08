@@ -18,7 +18,7 @@ export async function criarConta(_prev: State, formData: FormData): Promise<Stat
   const nome = (formData.get("nome") as string)?.trim()
   const tipo = formData.get("tipo") as TipoConta
   const saldoInicial = parseFloat((formData.get("saldoInicial") as string) || "0")
-  const cor = (formData.get("cor") as string) || "#6366f1"
+  const cor = (formData.get("cor") as string) || "#059669"
 
   if (!nome) return { error: "Nome obrigatório" }
   if (!VALID_TIPOS.has(tipo)) return { error: "Tipo inválido" }

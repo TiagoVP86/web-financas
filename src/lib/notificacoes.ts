@@ -11,7 +11,7 @@ async function sendEmail(to: string, subject: string, html: string) {
     const { Resend } = await import("resend")
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
-      from: process.env.EMAIL_FROM ?? "Minhas Finanças <noreply@minhasfinancas.app>",
+      from: process.env.EMAIL_FROM ?? "Finanças+ <noreply@minhasfinancas.app>",
       to,
       subject,
       html,
@@ -110,7 +110,7 @@ export async function gerarNotificacoes(userId?: string) {
         </table>
         <p><a href="${process.env.NEXTAUTH_URL ?? "http://localhost:3000"}/lancamentos">Ver lançamentos</a></p>
       `
-      await sendEmail(user.email, `Minhas Finanças — ${total} conta${total !== 1 ? "s" : ""} pendente${total !== 1 ? "s" : ""}`, html)
+      await sendEmail(user.email, `Finanças+ — ${total} conta${total !== 1 ? "s" : ""} pendente${total !== 1 ? "s" : ""}`, html)
     }
   }
 }

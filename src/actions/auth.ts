@@ -143,13 +143,13 @@ export async function atualizarNotifDias(
 
 export async function seedDefaultCategorias(userId: string) {
   const defaults = [
-    { nome: "Moradia",     cor: "#6366f1", icone: "home" },
-    { nome: "Alimentação", cor: "#f59e0b", icone: "utensils" },
-    { nome: "Saúde",       cor: "#22c55e", icone: "heart-pulse" },
-    { nome: "Transporte",  cor: "#3b82f6", icone: "car" },
-    { nome: "Lazer",       cor: "#ec4899", icone: "smile" },
-    { nome: "Educação",    cor: "#8b5cf6", icone: "book-open" },
-    { nome: "Outros",      cor: "#94a3b8", icone: "more-horizontal" },
+    { nome: "Moradia",     cor: "#059669", icone: "moradia" },
+    { nome: "Alimentação", cor: "#f59e0b", icone: "alimentacao" },
+    { nome: "Saúde",       cor: "#22c55e", icone: "saude" },
+    { nome: "Transporte",  cor: "#3b82f6", icone: "transporte" },
+    { nome: "Lazer",       cor: "#ec4899", icone: "lazer" },
+    { nome: "Educação",    cor: "#8b5cf6", icone: "educacao" },
+    { nome: "Outros",      cor: "#94a3b8", icone: "outros" },
   ]
   await db.categoria.createMany({ data: defaults.map((d) => ({ ...d, userId })) })
 }

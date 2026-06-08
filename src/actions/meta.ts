@@ -17,7 +17,7 @@ export async function criarMeta(_: unknown, formData: FormData) {
   const titulo = (formData.get("titulo") as string)?.trim()
   const valorAlvo = parseFloat(formData.get("valorAlvo") as string)
   const prazoRaw = formData.get("prazo") as string
-  const cor = (formData.get("cor") as string) || "#6366f1"
+  const cor = (formData.get("cor") as string) || "#059669"
 
   if (!titulo) return { error: "Título obrigatório." }
   if (!valorAlvo || valorAlvo <= 0) return { error: "Valor alvo deve ser maior que zero." }
