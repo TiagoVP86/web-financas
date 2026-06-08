@@ -1,12 +1,6 @@
-import { cadastrar } from "@/actions/auth"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import { SubmitButton } from "@/components/ui/submit-button"
-
-const cadastrarAction = cadastrar as unknown as (formData: FormData) => Promise<void>
-const hasSecret = !!process.env.REGISTRATION_SECRET
+import { CadastroForm } from "@/components/auth/cadastro-form"
 
 export default function CadastroPage() {
   return (
@@ -16,30 +10,12 @@ export default function CadastroPage() {
         <CardDescription>Comece a controlar suas finanças</CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={cadastrarAction} className="space-y-4">
-          {hasSecret && (
-            <div className="space-y-2">
-              <Label htmlFor="registrationCode">Código de convite</Label>
-              <Input id="registrationCode" name="registrationCode" type="password" required />
-            </div>
-          )}
-          <div className="space-y-2">
-            <Label htmlFor="name">Nome</Label>
-            <Input id="name" name="name" required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <Input id="password" name="password" type="password" minLength={6} required />
-          </div>
-          <SubmitButton className="w-full">Criar conta</SubmitButton>
-        </form>
+        <CadastroForm />
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Já tem conta?{" "}
-          <Link href="/login" className="text-primary hover:underline">Entrar</Link>
+          <Link href="/login" className="text-primary hover:underline">
+            Entrar
+          </Link>
         </p>
       </CardContent>
     </Card>

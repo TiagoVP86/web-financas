@@ -22,8 +22,10 @@ model User {
   contas           Conta[]
   metas            Meta[]
   notificacoes     Notificacao[]
-  notifDias        Int           @default(3)
-  transferencias   Transferencia[]
+  notifDias         Int           @default(3)
+  emailVerified     Boolean       @default(false)
+  verificationToken String?       @unique
+  transferencias    Transferencia[]
 }
 
 model Categoria {

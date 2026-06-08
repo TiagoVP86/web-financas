@@ -7,7 +7,8 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user
       const isAuthRoute =
         nextUrl.pathname.startsWith("/login") ||
-        nextUrl.pathname.startsWith("/cadastro")
+        nextUrl.pathname.startsWith("/cadastro") ||
+        nextUrl.pathname.startsWith("/verificar-email")
 
       if (!isLoggedIn && !isAuthRoute) {
         return Response.redirect(new URL("/login", nextUrl))

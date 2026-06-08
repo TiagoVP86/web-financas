@@ -7,41 +7,71 @@ import { redirect } from "next/navigation"
 import { z } from "zod"
 import { auth } from "@/lib/auth"
 import { AuthError } from "next-auth"
+import { sendVerificationEmail } from "@/lib/email"
 
-const cadastroSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(6),
-})
+const cadastroSchema = z
+  .object({
+    name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+    email: z.string().email("Email inválido"),
+    password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
+    confirmPassword: z.string(),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Senhas não coincidem",
+    path: ["confirmPassword"],
+  })
 
-export async function cadastrar(formData: FormData) {
-  const registrationSecret = process.env.REGISTRATION_SECRET
-  if (registrationSecret) {
-    const code = formData.get("registrationCode") as string
-    if (code !== registrationSecret) return { error: "Código de convite inválido" }
-  }
-
+export async function cadastrar(
+  _: unknown,
+  formData: FormData
+): Promise<{ error?: string; success?: boolean }> {
   const parsed = cadastroSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
   })
-  if (!parsed.success) return { error: "Dados inválidos" }
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message }
+  }
 
   const exists = await db.user.findUnique({ where: { email: parsed.data.email } })
   if (exists) return { error: "Email já cadastrado" }
 
   const hash = await bcrypt.hash(parsed.data.password, 12)
+  const token = crypto.randomUUID()
+
   const user = await db.user.create({
-    data: { name: parsed.data.name, email: parsed.data.email, password: hash },
+    data: {
+      name: parsed.data.name,
+      email: parsed.data.email,
+      password: hash,
+      emailVerified: false,
+      verificationToken: token,
+    },
   })
 
   await seedDefaultCategorias(user.id)
-  await signIn("credentials", {
-    email: parsed.data.email,
-    password: parsed.data.password,
-    redirectTo: "/dashboard",
+  await sendVerificationEmail(parsed.data.email, parsed.data.name, token)
+
+  return { success: true }
+}
+
+export async function verificarEmail(
+  token: string
+): Promise<{ success: boolean; error?: string }> {
+  if (!token) return { success: false, error: "Token inválido" }
+
+  const user = await db.user.findUnique({ where: { verificationToken: token } })
+  if (!user) return { success: false, error: "Link inválido ou já utilizado" }
+
+  await db.user.update({
+    where: { id: user.id },
+    data: { emailVerified: true, verificationToken: null },
   })
+
+  return { success: true }
 }
 
 export async function login(
@@ -55,8 +85,14 @@ export async function login(
       redirectTo: "/dashboard",
     })
   } catch (e) {
-    if (e instanceof AuthError) return { error: "Email ou senha incorretos" }
-    throw e // re-throw redirect errors so Next.js handles navigation
+    if (e instanceof AuthError) {
+      const cause = e.cause as { err?: Error } | undefined
+      if (cause?.err?.message === "EMAIL_NOT_VERIFIED") {
+        return { error: "Confirme seu email antes de fazer login" }
+      }
+      return { error: "Email ou senha incorretos" }
+    }
+    throw e
   }
   return null
 }
