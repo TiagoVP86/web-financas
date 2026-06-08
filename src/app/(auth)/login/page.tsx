@@ -1,6 +1,6 @@
 import { LoginForm } from "@/components/auth/login-form"
 import Link from "next/link"
-import { BarChart3 } from "lucide-react"
+import { LogoMark } from "@/components/layout/logo"
 
 export default function LoginPage() {
   return (
@@ -10,7 +10,7 @@ export default function LoginPage() {
           className="flex h-14 w-14 items-center justify-center rounded-2xl ring-1 ring-primary/30"
           style={{ background: "oklch(0.52 0.233 277 / 0.15)" }}
         >
-          <BarChart3 className="h-7 w-7 text-primary" />
+          <LogoMark size={32} />
         </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">

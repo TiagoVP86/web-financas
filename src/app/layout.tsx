@@ -12,6 +12,7 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "Minhas Finanças",
   description: "Controle financeiro pessoal",
+  icons: { icon: "/logo.svg" },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

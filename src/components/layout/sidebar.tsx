@@ -24,17 +24,7 @@ import {
   Target,
 } from "lucide-react"
 import { useState } from "react"
-
-function Wordmark({ collapsed = false }: { collapsed?: boolean }) {
-  if (collapsed) {
-    return <span className="text-lg font-bold tracking-tight text-primary">MF</span>
-  }
-  return (
-    <span className="text-lg font-bold tracking-tight whitespace-nowrap">
-      Minhas <span className="text-primary">Finanças</span>
-    </span>
-  )
-}
+import { Wordmark } from "./logo"
 
 const navLinkClass = (active: boolean) =>
   cn(
