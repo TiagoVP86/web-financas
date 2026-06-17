@@ -5,6 +5,7 @@ export interface TransacaoBruta {
   valor: number
   tipo: "RECEITA" | "DESPESA"
   data: string | null // YYYY-MM-DD or null
+  fitid?: string | null
 }
 
 export interface TransacaoExtratoItem {
