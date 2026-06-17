@@ -5,6 +5,8 @@ import { auth } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { z } from "zod"
+import { computeFingerprint } from "@/lib/fingerprint"
+import { findPossibleDuplicates, type DuplicateMatch } from "@/lib/dedup"
 
 async function getUserId() {
   const session = await auth()
@@ -40,6 +42,7 @@ const lancamentoSchema = z.object({
   categoriaId:  z.string().optional(),
   contaId:      z.string().optional(),
   pdfUrl:       z.string().optional(),
+  forcar:       z.string().optional(),
 })
 
 export async function criarLancamento(formData: FormData) {
@@ -55,6 +58,7 @@ export async function criarLancamento(formData: FormData) {
     categoriaId:  formData.get("categoriaId") || undefined,
     contaId:      formData.get("contaId") || undefined,
     pdfUrl:       formData.get("pdfUrl") || undefined,
+    forcar:       formData.get("forcar") || undefined,
   })
   if (!parsed.success) return { error: "Dados inválidos" }
 
@@ -71,12 +75,26 @@ export async function criarLancamento(formData: FormData) {
     if (!conta) return { error: "Conta inválida" }
   }
 
+  const dataLancamento = new Date(parsed.data.data)
+
+  if (parsed.data.forcar !== "true") {
+    const duplicatas = await findPossibleDuplicates(userId, {
+      data: dataLancamento,
+      valor: parsed.data.valor,
+      tipo: parsed.data.tipo,
+      descricao: parsed.data.descricao,
+    })
+    if (duplicatas.length > 0) {
+      return { duplicateWarning: duplicatas satisfies DuplicateMatch[] }
+    }
+  }
+
   await db.lancamento.create({
     data: {
       descricao:    parsed.data.descricao,
       valor:        parsed.data.valor,
       tipo:         parsed.data.tipo,
-      data:         new Date(parsed.data.data),
+      data:         dataLancamento,
       status:       parsed.data.status,
       codigoBarras: parsed.data.codigoBarras ?? null,
       chavePix:     parsed.data.chavePix ?? null,
@@ -84,6 +102,14 @@ export async function criarLancamento(formData: FormData) {
       categoriaId:  parsed.data.categoriaId ?? null,
       contaId:      parsed.data.contaId ?? null,
       userId,
+      origem:       "MANUAL",
+      fingerprint:  computeFingerprint(
+        userId,
+        dataLancamento,
+        parsed.data.valor,
+        parsed.data.tipo,
+        parsed.data.descricao,
+      ),
     },
   })
   revalidatePath("/lancamentos")

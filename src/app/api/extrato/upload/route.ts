@@ -8,6 +8,7 @@ import {
   extractTransactionsFromImage,
   categorizeTransactions,
 } from "@/lib/groq"
+import { flagDuplicates } from "@/lib/dedup"
 import type { AnaliseExtratoResponse } from "@/types/extrato"
 
 const CATEGORY_COLORS = [
@@ -101,6 +102,7 @@ export async function POST(req: NextRequest) {
               data: t.data ? new Date(t.data) : new Date(),
               categoriaId: cat?.categoriaId ?? null,
               categoriaNova: cat?.categoriaNova ?? null,
+              fitid: t.fitid ?? null,
             }
           }),
         },
@@ -109,6 +111,17 @@ export async function POST(req: NextRequest) {
         transacoes: { include: { categoria: true } },
       },
     })
+
+    const dupFlags = await flagDuplicates(
+      userId,
+      analise.transacoes.map((t) => ({
+        data: t.data,
+        valor: Number(t.valor),
+        tipo: t.tipo as "RECEITA" | "DESPESA",
+        descricao: t.descricao,
+      })),
+    )
+    const dupById = new Map(analise.transacoes.map((t, i) => [t.id, dupFlags[i]]))
 
     const porCategoriaAcc: Map<string, { nome: string; cor: string; valor: number }> = new Map()
     let colorIndex = 0
@@ -145,6 +158,7 @@ export async function POST(req: NextRequest) {
         categoriaNome: t.categoria?.nome ?? null,
         categoriaNova: t.categoriaNova,
         importado: t.importado,
+        possivelDuplicata: dupById.get(t.id) ?? false,
       })),
       categorias: userCategorias,
     }

@@ -32,7 +32,7 @@ export function TransacoesTable({
   isImporting,
 }: TransacoesTableProps) {
   const [selected, setSelected] = useState<Set<string>>(
-    () => new Set(transacoes.filter((t) => !t.importado).map((t) => t.id))
+    () => new Set(transacoes.filter((t) => !t.importado && !t.possivelDuplicata).map((t) => t.id))
   )
   const [overrides, setOverrides] = useState<Overrides>({})
 
@@ -153,6 +153,11 @@ export function TransacoesTable({
                       {t.descricao}
                       {t.importado && (
                         <Badge variant="secondary" className="ml-2 text-xs">Importado</Badge>
+                      )}
+                      {!t.importado && t.possivelDuplicata && (
+                        <Badge variant="outline" className="ml-2 text-xs border-amber-500 text-amber-600">
+                          Possível duplicata
+                        </Badge>
                       )}
                     </td>
                     <td

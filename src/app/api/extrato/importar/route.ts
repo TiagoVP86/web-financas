@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { computeFingerprint } from "@/lib/fingerprint"
 import type { ImportarRequestBody, ImportarResponse } from "@/types/extrato"
 
 const CATEGORY_COLORS = [
@@ -76,17 +77,33 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      const lancamento = await db.lancamento.create({
-        data: {
-          descricao: transacao.descricao,
-          valor: transacao.valor,
-          tipo: transacao.tipo,
-          data: transacao.data,
-          status: transacao.tipo === "RECEITA" ? "REALIZADO" : "PAGO",
-          categoriaId: categoriaId ?? null,
-          userId,
-        },
-      })
+      const fingerprint = computeFingerprint(
+        userId,
+        transacao.data,
+        Number(transacao.valor),
+        transacao.tipo,
+        transacao.descricao,
+      )
+
+      const baseData = {
+        descricao: transacao.descricao,
+        valor: transacao.valor,
+        tipo: transacao.tipo,
+        data: transacao.data,
+        status: transacao.tipo === "RECEITA" ? ("REALIZADO" as const) : ("PAGO" as const),
+        categoriaId: categoriaId ?? null,
+        userId,
+        fingerprint,
+        origem: "EXTRATO" as const,
+      }
+
+      const lancamento = transacao.fitid
+        ? await db.lancamento.upsert({
+            where: { userId_fitid: { userId, fitid: transacao.fitid } },
+            update: {}, // já existe → reimport é no-op
+            create: { ...baseData, fitid: transacao.fitid },
+          })
+        : await db.lancamento.create({ data: baseData })
 
       await db.transacaoExtrato.update({
         where: { id: transacao.id },
