@@ -18,6 +18,7 @@ export interface TransacaoExtratoItem {
   categoriaNome: string | null
   categoriaNova: string | null
   importado: boolean
+  possivelDuplicata: boolean
 }
 
 export interface AnaliseExtratoResponse {
