@@ -65,6 +65,12 @@ model Lancamento {
   recorrencia     Recorrencia?  @relation(fields: [recorrenciaId], references: [id], onDelete: SetNull)
   parcelamentoId  String?
   parcelamento    Parcelamento? @relation(fields: [parcelamentoId], references: [id], onDelete: SetNull)
+  fitid           String?
+  origem          Origem        @default(MANUAL)
+  fingerprint     String?
+
+  @@unique([userId, fitid])
+  @@index([userId, fingerprint])
 }
 
 model AnaliseIA {
@@ -122,6 +128,7 @@ model TransacaoExtrato {
   categoriaNova String?
   importado     Boolean        @default(false)
   lancamentoId  String?
+  fitid         String?
   analiseId     String
   analise       AnaliseExtrato @relation(fields: [analiseId], references: [id], onDelete: Cascade)
 
@@ -256,4 +263,9 @@ enum Frequencia {
   QUINZENAL
   MENSAL
   ANUAL
+}
+
+enum Origem {
+  MANUAL
+  EXTRATO
 }
