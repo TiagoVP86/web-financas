@@ -4,10 +4,27 @@ import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { criarLancamento } from "@/actions/lancamentos"
 import { toast } from "sonner"
 import { Upload, Loader2 } from "lucide-react"
 import type { ExtractedBill } from "@/lib/groq"
+
+interface DuplicateMatch {
+  id: string
+  descricao: string
+  data: string
+  valor: number
+}
 
 interface Categoria {
   id: string
@@ -23,6 +40,8 @@ export function PdfUploadTab({ categorias, onSuccess }: PdfUploadTabProps) {
   const [loading, setLoading] = useState(false)
   const [extracted, setExtracted] = useState<ExtractedBill | null>(null)
   const [pdfUrl, setPdfUrl] = useState("")
+  const [duplicatas, setDuplicatas] = useState<DuplicateMatch[] | null>(null)
+  const pendingData = useRef<FormData | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -50,8 +69,13 @@ export function PdfUploadTab({ categorias, onSuccess }: PdfUploadTabProps) {
   }
 
   async function handleSubmit(formData: FormData) {
-    formData.append("pdfUrl", pdfUrl)
+    if (!formData.has("pdfUrl")) formData.append("pdfUrl", pdfUrl)
     const result = await criarLancamento(formData)
+    if (result?.duplicateWarning) {
+      pendingData.current = formData
+      setDuplicatas(result.duplicateWarning)
+      return
+    }
     if (result?.error) {
       toast.error(result.error)
       return
@@ -61,6 +85,17 @@ export function PdfUploadTab({ categorias, onSuccess }: PdfUploadTabProps) {
     setPdfUrl("")
     onSuccess()
   }
+
+  async function confirmarForcado() {
+    const fd = pendingData.current
+    setDuplicatas(null)
+    if (!fd) return
+    fd.set("forcar", "true")
+    await handleSubmit(fd)
+    pendingData.current = null
+  }
+
+  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 
   if (!extracted) {
     return (
@@ -162,6 +197,28 @@ export function PdfUploadTab({ categorias, onSuccess }: PdfUploadTabProps) {
         </Button>
         <Button type="submit" className="flex-1">Confirmar e Salvar</Button>
       </div>
+
+      <AlertDialog open={duplicatas !== null} onOpenChange={(o) => !o && setDuplicatas(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Possível lançamento duplicado</AlertDialogTitle>
+            <AlertDialogDescription>
+              Já existe lançamento parecido. Deseja criar mesmo assim?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <ul className="list-disc space-y-1 pl-5 text-sm">
+            {(duplicatas ?? []).map((d) => (
+              <li key={d.id}>
+                {d.descricao} — {fmt(d.valor)} em {new Date(d.data).toLocaleDateString("pt-BR")}
+              </li>
+            ))}
+          </ul>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmarForcado}>Criar mesmo assim</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </form>
   )
 }
