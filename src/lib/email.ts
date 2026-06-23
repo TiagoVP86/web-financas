@@ -23,8 +23,18 @@ function createTransporter() {
   })
 }
 
-export async function sendVerificationEmail(to: string, name: string, token: string) {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) return
+export async function sendVerificationEmail(
+  to: string,
+  name: string,
+  token: string
+): Promise<boolean> {
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.error(
+      "[email] GMAIL_USER/GMAIL_APP_PASSWORD ausentes — email de verificação não enviado para",
+      to
+    )
+    return false
+  }
 
   const url = escapeHtml(`${BASE_URL}/verificar-email?token=${token}`)
   const firstName = escapeHtml(name.split(" ")[0])
@@ -79,7 +89,9 @@ export async function sendVerificationEmail(to: string, name: string, token: str
 </body>
 </html>`,
     })
-  } catch {
-    // non-blocking
+    return true
+  } catch (e) {
+    console.error("[email] falha ao enviar verificação para", to, e)
+    return false
   }
 }

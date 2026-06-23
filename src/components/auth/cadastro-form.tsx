@@ -4,14 +4,55 @@ import { useActionState, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SubmitButton } from "@/components/ui/submit-button"
-import { cadastrar } from "@/actions/auth"
-import { Eye, EyeOff, MailCheck } from "lucide-react"
+import { cadastrar, reenviarVerificacao } from "@/actions/auth"
+import { Eye, EyeOff, MailCheck, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 
 export function CadastroForm() {
   const [state, action] = useActionState(cadastrar, null)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [email, setEmail] = useState("")
+  const [resent, setResent] = useState<"idle" | "ok" | "error">("idle")
+
+  if (state?.success && state.emailSent === false) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-4 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10">
+          <AlertTriangle className="h-7 w-7 text-amber-600" />
+        </div>
+        <div className="space-y-1">
+          <p className="font-semibold text-foreground">Conta criada</p>
+          <p className="text-sm text-muted-foreground">
+            Não conseguimos enviar o email de confirmação agora. Tente reenviar.
+          </p>
+        </div>
+        {resent === "ok" ? (
+          <p className="text-sm font-medium text-primary">Email reenviado.</p>
+        ) : (
+          <button
+            type="button"
+            onClick={async () => {
+              const r = await reenviarVerificacao(email)
+              setResent(r.success ? "ok" : "error")
+            }}
+            className="mt-1 text-sm font-medium text-primary hover:underline"
+          >
+            Reenviar email de confirmação
+          </button>
+        )}
+        {resent === "error" && (
+          <p className="text-sm text-destructive">Falhou de novo. Tente mais tarde.</p>
+        )}
+        <Link
+          href="/login"
+          className="mt-2 text-sm font-medium text-primary hover:underline"
+        >
+          Ir para o login
+        </Link>
+      </div>
+    )
+  }
 
   if (state?.success) {
     return (
@@ -43,7 +84,15 @@ export function CadastroForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required autoComplete="email" />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Senha</Label>

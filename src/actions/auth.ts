@@ -24,7 +24,7 @@ const cadastroSchema = z
 export async function cadastrar(
   _: unknown,
   formData: FormData
-): Promise<{ error?: string; success?: boolean }> {
+): Promise<{ error?: string; success?: boolean; emailSent?: boolean }> {
   const parsed = cadastroSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -53,8 +53,34 @@ export async function cadastrar(
   })
 
   await seedDefaultCategorias(user.id)
-  await sendVerificationEmail(parsed.data.email, parsed.data.name, token)
+  const emailSent = await sendVerificationEmail(
+    parsed.data.email,
+    parsed.data.name,
+    token
+  )
 
+  return { success: true, emailSent }
+}
+
+export async function reenviarVerificacao(
+  email: string
+): Promise<{ success: boolean; error?: string }> {
+  const parsed = z.string().email().safeParse(email)
+  if (!parsed.success) return { success: false, error: "Email inválido" }
+
+  const user = await db.user.findUnique({ where: { email: parsed.data } })
+  if (!user || user.emailVerified) {
+    // não revela se a conta existe / já está verificada
+    return { success: true }
+  }
+
+  const token = user.verificationToken ?? crypto.randomUUID()
+  if (!user.verificationToken) {
+    await db.user.update({ where: { id: user.id }, data: { verificationToken: token } })
+  }
+
+  const sent = await sendVerificationEmail(user.email, user.name ?? "", token)
+  if (!sent) return { success: false, error: "Não foi possível enviar o email agora" }
   return { success: true }
 }
 
