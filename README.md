@@ -6,6 +6,14 @@ Aplicação web de gestão financeira pessoal — controle de lançamentos, cont
 
 ---
 
+## Screenshots
+
+| Light | Dark |
+|---|---|
+| ![Dashboard Light](docs/screenshots/dashboard-light.png) | ![Dashboard Dark](docs/screenshots/dashboard-dark.png) |
+
+---
+
 ## Funcionalidades
 
 - **Dashboard** — visão geral do patrimônio líquido com histórico de 12 meses
