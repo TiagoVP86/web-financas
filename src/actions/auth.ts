@@ -92,10 +92,15 @@ export async function verificarEmail(
   const user = await db.user.findUnique({ where: { verificationToken: token } })
   if (!user) return { success: false, error: "Link inválido ou já utilizado" }
 
-  await db.user.update({
-    where: { id: user.id },
-    data: { emailVerified: true, verificationToken: null },
-  })
+  // Idempotente: scanners de email corporativo fazem prefetch do link (GET) e
+  // consumiriam o token antes do usuário clicar. Mantemos o token e só atualizamos
+  // se ainda não verificado, então cliques repetidos continuam retornando sucesso.
+  if (!user.emailVerified) {
+    await db.user.update({
+      where: { id: user.id },
+      data: { emailVerified: true },
+    })
+  }
 
   return { success: true }
 }
