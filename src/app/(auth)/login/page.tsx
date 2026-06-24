@@ -15,10 +15,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div
-        className="rounded-2xl border border-white/10 p-8"
-        style={{ background: "oklch(0.13 0 0)" }}
-      >
+      <div className="rounded-2xl border border-border bg-card p-8">
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-foreground">Entrar</h2>
           <p className="mt-0.5 text-sm text-muted-foreground">Acesse sua conta</p>
