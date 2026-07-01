@@ -10,7 +10,7 @@ import { LancamentosTable } from "@/components/lancamentos/lancamentos-table"
 import { Pagination } from "@/components/ui/pagination"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TIPO_CONTA_LABELS, type TipoConta } from "@/types/conta"
-import { subMonths, startOfMonth } from "date-fns"
+import { subMonths, startOfMonth, endOfMonth } from "date-fns"
 
 export const metadata: Metadata = { title: "Conta" }
 
@@ -44,7 +44,7 @@ export default async function ContaDetalhePage({
 
   const total = await db.lancamento.count({ where: { userId, contaId: id } })
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-  const pageRaw = sp.page ? parseInt(sp.page) : 1
+  const pageRaw = sp.page ? parseInt(sp.page, 10) : 1
   const page = Number.isNaN(pageRaw) ? 1 : Math.min(Math.max(1, pageRaw), totalPages)
 
   const windowStart = startOfMonth(subMonths(new Date(), 11))
@@ -53,7 +53,7 @@ export default async function ContaDetalhePage({
     computeSaldoHistorico(userId, { contaId: id }),
     db.lancamento.groupBy({
       by: ["tipo"],
-      where: { userId, contaId: id, data: { gte: windowStart } },
+      where: { userId, contaId: id, data: { gte: windowStart, lte: endOfMonth(new Date()) } },
       _sum: { valor: true },
     }),
     db.lancamento.groupBy({

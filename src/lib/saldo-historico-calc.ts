@@ -8,7 +8,7 @@ export interface LinhaMensal {
   despesas: number
 }
 
-/** Acumula saldo a partir de uma base, aplicando receita−despesa de cada mês em ordem. */
+/** Acumula saldo a partir de uma base, aplicando receita - despesa de cada mês em ordem. */
 export function acumularSaldo(
   base: number,
   meses: { label: string; linha: LinhaMensal }[],
