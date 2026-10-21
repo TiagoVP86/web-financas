@@ -9,6 +9,7 @@ import {
   categorizeTransactions,
 } from "@/lib/groq"
 import { flagDuplicates } from "@/lib/dedup"
+import { PdfPasswordError } from "@/lib/pdf-password"
 import type { AnaliseExtratoResponse } from "@/types/extrato"
 
 const CATEGORY_COLORS = [
@@ -34,6 +35,8 @@ export async function POST(req: NextRequest) {
   const formData = await req.formData()
   const file = formData.get("file") as File | null
   if (!file) return NextResponse.json({ error: "Nenhum arquivo enviado" }, { status: 400 })
+  const senhaField = formData.get("senha")
+  const senha = typeof senhaField === "string" && senhaField !== "" ? senhaField : undefined
 
   const isOFX = file.name.toLowerCase().endsWith(".ofx")
   const isCSV = file.name.toLowerCase().endsWith(".csv")
@@ -48,7 +51,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const parseResult = await parseExtrato(file)
+    const parseResult = await parseExtrato(file, senha)
 
     let transacoesBrutas
     if (parseResult.kind === "structured") {
@@ -165,6 +168,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(response)
   } catch (err) {
+    if (err instanceof PdfPasswordError) {
+      return NextResponse.json({ error: err.message, code: err.code }, { status: 422 })
+    }
     const message = err instanceof Error ? err.message : String(err)
     console.error("[extrato/upload]", message)
     return NextResponse.json({ error: message }, { status: 500 })
