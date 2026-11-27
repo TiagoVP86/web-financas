@@ -1,6 +1,7 @@
 import Groq from "groq-sdk"
 import type { TransacaoBruta } from "@/types/extrato"
-import { parseValorBR } from "./valor-br"
+import { parseValorBR, parseValorBRComSinal } from "./valor-br"
+import type { DadosFatura } from "./conferencia-fatura"
 
 let _groq: Groq | null = null
 function getGroq(): Groq {
@@ -73,14 +74,34 @@ async function complete(models: string[], params: CompletionParams): Promise<str
   throw lastErr
 }
 
-/** Valor vem como string do extrato; conversão BR feita em código (ver valor-br.ts). */
-function normalizeTransacoes(content: string): TransacaoBruta[] {
-  const result = parseJson<{ transacoes?: Array<Omit<TransacaoBruta, "valor"> & { valor: unknown }> }>(content)
-  return (result.transacoes ?? []).flatMap((t) => {
+export interface ExtracaoExtrato {
+  transacoes: TransacaoBruta[]
+  /** Totais impressos no documento quando é fatura de cartão; null em extrato de conta. */
+  fatura: DadosFatura | null
+}
+
+/** Valores vêm como string do extrato; conversão BR feita em código (ver valor-br.ts). */
+export function normalizeExtracao(content: string): ExtracaoExtrato {
+  const result = parseJson<{
+    transacoes?: Array<Omit<TransacaoBruta, "valor"> & { valor: unknown }>
+    fatura?: { totalFatura?: unknown; saldoAnterior?: unknown } | null
+  }>(content)
+
+  const transacoes = (result.transacoes ?? []).flatMap((t) => {
     const valor = parseValorBR(t.valor)
     return valor === null || valor === 0 ? [] : [{ ...t, valor }]
   })
+
+  const totalFatura = parseValorBRComSinal(result.fatura?.totalFatura)
+  const fatura =
+    totalFatura === null
+      ? null
+      : { totalFatura, saldoAnterior: parseValorBRComSinal(result.fatura?.saldoAnterior) ?? 0 }
+
+  return { transacoes, fatura }
 }
+
+const INSTRUCAO_FATURA = `- "fatura": SOMENTE se for fatura de cartão de crédito, preencha com STRINGS copiadas do documento: "totalFatura" = valor total da fatura / total a pagar (ex: "846,08"); "saldoAnterior" = total da fatura anterior, com sinal (ex: "2.523,42"), ou null se não houver. Em extrato de conta corrente, use "fatura": null.`
 
 function parseJson<T>(text: string): T {
   const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
@@ -152,7 +173,7 @@ export interface CategorizacaoResult {
 
 export async function extractTransactionsFromText(
   text: string
-): Promise<TransacaoBruta[]> {
+): Promise<ExtracaoExtrato> {
   const content = await complete(TEXT_MODELS(), {
     temperature: 0,
     messages: [
@@ -167,7 +188,8 @@ export async function extractTransactionsFromText(
       "tipo": "DESPESA",
       "data": "2026-03-01"
     }
-  ]
+  ],
+  "fatura": { "totalFatura": "846,08", "saldoAnterior": "2.523,42" }
 }
 Regras:
 - O texto pode ser extrato de conta ou fatura de cartão de crédito. Colunas de uma mesma linha vêm separadas por " | " (ex: "18/02/25 | AMAZON MUSIC | -11,90 | 0,00").
@@ -175,6 +197,7 @@ Regras:
 - "tipo": em extrato de conta, "RECEITA" para entradas/créditos e "DESPESA" para saídas/débitos. Em fatura de cartão, valores positivos são compras ("DESPESA") e valores negativos são estornos/créditos/pagamentos ("RECEITA").
 - "data": formato YYYY-MM-DD (datas "DD/MM/AA" significam 20AA); use null se não encontrar
 - Inclua cada linha de lançamento com data, mesmo que repetida. NÃO inclua subtotais, totais, saldos, resumo da fatura, valor do boleto, opções de parcelamento, limites nem taxas informativas.
+${INSTRUCAO_FATURA}
 Retorne APENAS o JSON.
 
 Extrato:
@@ -182,13 +205,13 @@ ${text.slice(0, 30000)}`,
       },
     ],
   })
-  return normalizeTransacoes(content)
+  return normalizeExtracao(content)
 }
 
 export async function extractTransactionsFromImage(
   base64: string,
   mimeType: string
-): Promise<TransacaoBruta[]> {
+): Promise<ExtracaoExtrato> {
   const content = await complete(VISION_MODELS(), {
     temperature: 0,
     messages: [
@@ -210,8 +233,10 @@ export async function extractTransactionsFromImage(
       "tipo": "DESPESA",
       "data": "2026-03-01"
     }
-  ]
+  ],
+  "fatura": { "totalFatura": "846,08", "saldoAnterior": "2.523,42" }
 }
+${INSTRUCAO_FATURA}
 Regras: "tipo" RECEITA para entradas, DESPESA para saídas (em fatura de cartão: positivo = compra/DESPESA, negativo = estorno/crédito/RECEITA); use só a coluna em R$, ignore US$; não inclua subtotais, totais nem resumo; "valor" STRING copiada exatamente como aparece na imagem (ex: "11,90"), sem converter separadores; "data" YYYY-MM-DD ou null.
 Retorne APENAS o JSON.`,
           },
@@ -219,7 +244,7 @@ Retorne APENAS o JSON.`,
       },
     ],
   })
-  return normalizeTransacoes(content)
+  return normalizeExtracao(content)
 }
 
 export async function categorizeTransactions(

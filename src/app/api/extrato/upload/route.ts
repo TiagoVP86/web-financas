@@ -9,6 +9,7 @@ import {
   categorizeTransactions,
 } from "@/lib/groq"
 import { flagDuplicates } from "@/lib/dedup"
+import { conferirFatura, type DadosFatura } from "@/lib/conferencia-fatura"
 import { PdfPasswordError } from "@/lib/pdf-password"
 import type { AnaliseExtratoResponse } from "@/types/extrato"
 
@@ -54,15 +55,16 @@ export async function POST(req: NextRequest) {
     const parseResult = await parseExtrato(file, senha)
 
     let transacoesBrutas
+    let dadosFatura: DadosFatura | null = null
     if (parseResult.kind === "structured") {
       transacoesBrutas = parseResult.transacoes
-    } else if (parseResult.kind === "text") {
-      transacoesBrutas = await extractTransactionsFromText(parseResult.text)
     } else {
-      transacoesBrutas = await extractTransactionsFromImage(
-        parseResult.base64,
-        parseResult.mimeType
-      )
+      const extracao =
+        parseResult.kind === "text"
+          ? await extractTransactionsFromText(parseResult.text)
+          : await extractTransactionsFromImage(parseResult.base64, parseResult.mimeType)
+      transacoesBrutas = extracao.transacoes
+      dadosFatura = extracao.fatura
     }
 
     if (transacoesBrutas.length === 0) {
@@ -160,6 +162,7 @@ export async function POST(req: NextRequest) {
       totalReceitas,
       totalDespesas,
       saldo: Math.round((totalReceitas - totalDespesas) * 100) / 100,
+      conferencia: dadosFatura ? conferirFatura(dadosFatura, transacoesBrutas) : null,
       porCategoria: Array.from(porCategoriaAcc.values()),
       transacoes: analise.transacoes.map((t) => ({
         id: t.id,

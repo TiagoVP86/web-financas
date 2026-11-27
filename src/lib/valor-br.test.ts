@@ -1,5 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { parseValorBR } from "./valor-br"
+import { parseValorBR, parseValorBRComSinal } from "./valor-br"
+
+describe("parseValorBRComSinal", () => {
+  it.each([
+    ["-11,90", -11.9],
+    ["11,90-", -11.9],
+    ["(11,90)", -11.9],
+    ["R$ -2.642,42", -2642.42],
+    ["2.523,42", 2523.42],
+    ["R$ 846,08", 846.08],
+    ["11,90 D", 11.9],
+  ])("%s → %d", (input, expected) => {
+    expect(parseValorBRComSinal(input)).toBeCloseTo(expected, 2)
+  })
+
+  it("number preserva sinal", () => {
+    expect(parseValorBRComSinal(-5)).toBe(-5)
+  })
+})
 
 describe("parseValorBR", () => {
   it.each([

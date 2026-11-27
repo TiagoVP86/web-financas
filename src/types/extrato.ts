@@ -1,4 +1,5 @@
 // src/types/extrato.ts
+import type { ConferenciaFatura } from "@/lib/conferencia-fatura"
 
 export interface TransacaoBruta {
   descricao: string
@@ -30,6 +31,8 @@ export interface AnaliseExtratoResponse {
   totalReceitas: number
   totalDespesas: number
   saldo: number
+  /** Conferência contra o total impresso, só para fatura de cartão. */
+  conferencia: ConferenciaFatura | null
   porCategoria: { nome: string; valor: number; cor: string }[]
   transacoes: TransacaoExtratoItem[]
   categorias: { id: string; nome: string; cor: string }[]

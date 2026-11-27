@@ -1,12 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Sparkles, TrendingUp, TrendingDown, Minus } from "lucide-react"
+import { Sparkles, TrendingUp, TrendingDown, Minus, CircleCheck, TriangleAlert } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AnaliseExtratoResponse } from "@/types/extrato"
 
 interface ExtratoResumoCardProps {
   analise: Pick<
     AnaliseExtratoResponse,
-    "nomeArquivo" | "resumo" | "periodo" | "totalReceitas" | "totalDespesas" | "saldo"
+    "nomeArquivo" | "resumo" | "periodo" | "totalReceitas" | "totalDespesas" | "saldo" | "conferencia"
   >
 }
 
@@ -54,7 +54,66 @@ export function ExtratoResumoCard({ analise }: ExtratoResumoCardProps) {
             </p>
           </div>
         </div>
+        {analise.conferencia && <ConferenciaFaturaBox c={analise.conferencia} fmt={fmt} />}
       </CardContent>
     </Card>
+  )
+}
+
+function ConferenciaFaturaBox({
+  c,
+  fmt,
+}: {
+  c: NonNullable<AnaliseExtratoResponse["conferencia"]>
+  fmt: (v: number) => string
+}) {
+  const linhas: [string, string][] = [
+    ["Fatura anterior", fmt(c.saldoAnterior)],
+    ["+ Compras e débitos lidos", fmt(c.despesas)],
+    ["− Créditos e pagamentos lidos", fmt(c.creditos)],
+    ["= Calculado pelos lançamentos", fmt(c.calculado)],
+  ]
+
+  return (
+    <section
+      aria-label="Conferência da fatura"
+      className={cn(
+        "rounded-lg p-3 ring-1",
+        c.confere ? "bg-receita/5 ring-receita/30" : "bg-despesa/5 ring-despesa/40"
+      )}
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-sm font-semibold">Total da fatura</h3>
+        <p className="text-base font-bold tabular-nums">{fmt(c.totalFatura)}</p>
+      </div>
+
+      <dl className="mt-2 space-y-1 text-xs text-muted-foreground">
+        {linhas.map(([label, valor]) => (
+          <div key={label} className="flex justify-between gap-2">
+            <dt>{label}</dt>
+            <dd className="tabular-nums">{valor}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <p
+        className={cn(
+          "mt-3 flex items-start gap-1.5 border-t border-border/60 pt-2 text-xs font-medium",
+          c.confere ? "text-receita" : "text-despesa"
+        )}
+      >
+        {c.confere ? (
+          <>
+            <CircleCheck className="mt-px h-3.5 w-3.5 shrink-0" />
+            Confere: todos os lançamentos da fatura foram lidos.
+          </>
+        ) : (
+          <>
+            <TriangleAlert className="mt-px h-3.5 w-3.5 shrink-0" />
+            Diferença de {fmt(Math.abs(c.diferenca))}: pode estar faltando ou sobrando lançamento. Confira com o PDF antes de importar.
+          </>
+        )}
+      </p>
+    </section>
   )
 }

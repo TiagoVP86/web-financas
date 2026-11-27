@@ -4,10 +4,18 @@
  * porque o modelo erra a conversão de separadores (ex.: "11,90" → 11900).
  */
 export function parseValorBR(input: unknown): number | null {
+  const n = parseValorBRComSinal(input)
+  return n === null ? null : Math.abs(n)
+}
+
+/** Igual a parseValorBR, mas preserva o sinal ("-11,90", "11,90-", "(11,90)" → -11.9). */
+export function parseValorBRComSinal(input: unknown): number | null {
   if (typeof input === "number") {
-    return Number.isFinite(input) ? Math.abs(input) : null
+    return Number.isFinite(input) ? input : null
   }
   if (typeof input !== "string") return null
+  const t = input.trim()
+  const negativo = /^-|-$|^\(.*\)$/.test(t) || /^R\$\s*-/.test(t)
 
   const s = input.replace(/[^\d.,]/g, "")
   if (!/\d/.test(s)) return null
@@ -34,5 +42,6 @@ export function parseValorBR(input: unknown): number | null {
   }
 
   const n = Number(normalized)
-  return Number.isFinite(n) ? Math.abs(n) : null
+  if (!Number.isFinite(n)) return null
+  return negativo ? -n : n
 }
