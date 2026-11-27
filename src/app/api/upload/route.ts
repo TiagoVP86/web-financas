@@ -3,7 +3,11 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { extractBillFromText } from "@/lib/groq"
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require("pdf-parse") as (buffer: Buffer) => Promise<{ text: string }>
+const pdfParse = require("pdf-parse") as (
+  buffer: Buffer,
+  options?: { pagerender?: typeof renderPageComColunas }
+) => Promise<{ text: string }>
+import { renderPageComColunas } from "@/lib/pdf-text"
 
 export async function POST(req: NextRequest) {
   const session = await auth()
@@ -30,7 +34,7 @@ export async function POST(req: NextRequest) {
   try {
     const [blob, parsed] = await Promise.all([
       put(blobKey, file, { access: "private" }),
-      pdfParse(buffer),
+      pdfParse(buffer, { pagerender: renderPageComColunas }),
     ])
 
     const extracted = await extractBillFromText(parsed.text)

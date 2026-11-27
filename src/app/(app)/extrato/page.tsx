@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { ExtratoClient } from "@/components/extrato/extrato-client"
+import { ExcluirAnaliseButton } from "@/components/extrato/excluir-analise-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileSearch, FileText } from "lucide-react"
 import { format } from "date-fns"
@@ -24,6 +25,7 @@ export default async function ExtratoPage() {
       resumo: true,
       createdAt: true,
       _count: { select: { transacoes: true } },
+      transacoes: { where: { importado: true }, select: { id: true } },
     },
   })
 
@@ -56,6 +58,11 @@ export default async function ExtratoPage() {
                   <CardTitle className="min-w-0 flex-1 truncate text-sm font-medium">
                     {analise.nomeArquivo}
                   </CardTitle>
+                  <ExcluirAnaliseButton
+                    analiseId={analise.id}
+                    nomeArquivo={analise.nomeArquivo}
+                    importados={analise.transacoes.length}
+                  />
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <p className="line-clamp-2 text-muted-foreground">{analise.resumo}</p>

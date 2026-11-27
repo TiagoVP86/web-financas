@@ -170,14 +170,15 @@ export async function extractTransactionsFromText(
   ]
 }
 Regras:
-- "tipo": use "RECEITA" para entradas/créditos, "DESPESA" para saídas/débitos
-- "valor": STRING copiada exatamente como aparece no extrato (ex: "11,90", "1.234,56"); NÃO converta separadores
-- "data": formato YYYY-MM-DD; use null se não encontrar
-- Inclua TODAS as transações visíveis no texto
+- O texto pode ser extrato de conta ou fatura de cartão de crédito. Colunas de uma mesma linha vêm separadas por " | " (ex: "18/02/25 | AMAZON MUSIC | -11,90 | 0,00").
+- "valor": STRING copiada exatamente como aparece na coluna em reais (R$), incluindo o sinal (ex: "-11,90", "1.234,56"); NÃO converta separadores. Ignore colunas em dólar (US$).
+- "tipo": em extrato de conta, "RECEITA" para entradas/créditos e "DESPESA" para saídas/débitos. Em fatura de cartão, valores positivos são compras ("DESPESA") e valores negativos são estornos/créditos/pagamentos ("RECEITA").
+- "data": formato YYYY-MM-DD (datas "DD/MM/AA" significam 20AA); use null se não encontrar
+- Inclua cada linha de lançamento com data, mesmo que repetida. NÃO inclua subtotais, totais, saldos, resumo da fatura, valor do boleto, opções de parcelamento, limites nem taxas informativas.
 Retorne APENAS o JSON.
 
 Extrato:
-${text.slice(0, 8000)}`,
+${text.slice(0, 30000)}`,
       },
     ],
   })
@@ -211,7 +212,7 @@ export async function extractTransactionsFromImage(
     }
   ]
 }
-Regras: "tipo" RECEITA para entradas, DESPESA para saídas; "valor" STRING copiada exatamente como aparece na imagem (ex: "11,90"), sem converter separadores; "data" YYYY-MM-DD ou null.
+Regras: "tipo" RECEITA para entradas, DESPESA para saídas (em fatura de cartão: positivo = compra/DESPESA, negativo = estorno/crédito/RECEITA); use só a coluna em R$, ignore US$; não inclua subtotais, totais nem resumo; "valor" STRING copiada exatamente como aparece na imagem (ex: "11,90"), sem converter separadores; "data" YYYY-MM-DD ou null.
 Retorne APENAS o JSON.`,
           },
         ],

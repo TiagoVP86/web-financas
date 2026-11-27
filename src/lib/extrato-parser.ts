@@ -1,10 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require("pdf-parse") as (
-  input: Buffer | { data: Uint8Array; password: string }
+  input: Buffer | { data: Uint8Array; password: string },
+  options?: { pagerender?: typeof renderPageComColunas }
 ) => Promise<{ text: string }>
 import Papa from "papaparse"
 import type { TransacaoBruta } from "@/types/extrato"
 import { parseOFX } from "@/lib/ofx"
+import { renderPageComColunas } from "@/lib/pdf-text"
 import { PdfPasswordError, pdfPareceCriptografado, toPdfPasswordError } from "@/lib/pdf-password"
 
 export type ParseResult =
@@ -18,7 +20,10 @@ export async function parseExtrato(file: File, senha?: string): Promise<ParseRes
   if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
     const buffer = Buffer.from(await file.arrayBuffer())
     try {
-      const parsed = await pdfParse(senha ? { data: new Uint8Array(buffer), password: senha } : buffer)
+      const parsed = await pdfParse(
+        senha ? { data: new Uint8Array(buffer), password: senha } : buffer,
+        { pagerender: renderPageComColunas }
+      )
       return { kind: "text", text: parsed.text, nomeArquivo }
     } catch (err) {
       const passwordErr = toPdfPasswordError(err)
