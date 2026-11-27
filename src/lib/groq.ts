@@ -1,5 +1,6 @@
 import Groq from "groq-sdk"
 import type { TransacaoBruta } from "@/types/extrato"
+import { parseValorBR } from "./valor-br"
 
 let _groq: Groq | null = null
 function getGroq(): Groq {
@@ -72,6 +73,15 @@ async function complete(models: string[], params: CompletionParams): Promise<str
   throw lastErr
 }
 
+/** Valor vem como string do extrato; conversão BR feita em código (ver valor-br.ts). */
+function normalizeTransacoes(content: string): TransacaoBruta[] {
+  const result = parseJson<{ transacoes?: Array<Omit<TransacaoBruta, "valor"> & { valor: unknown }> }>(content)
+  return (result.transacoes ?? []).flatMap((t) => {
+    const valor = parseValorBR(t.valor)
+    return valor === null || valor === 0 ? [] : [{ ...t, valor }]
+  })
+}
+
 function parseJson<T>(text: string): T {
   const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
   return JSON.parse(cleaned) as T
@@ -86,19 +96,20 @@ export async function extractBillFromText(text: string): Promise<ExtractedBill> 
         content: `Analise este texto de documento financeiro e extraia em JSON estrito:
 {
   "descricao": "tipo da conta (ex: Conta de Luz, Internet, IPTU)",
-  "valor": 99.90,
+  "valor": "99,90",
   "data": "2026-06-15",
   "codigoBarras": "linha digitável completa ou null",
   "chavePix": "chave PIX ou null"
 }
-Para "data" use o vencimento no formato YYYY-MM-DD. Retorne APENAS o JSON.
+Para "valor" copie o texto exatamente como aparece no documento (ex: "99,90"), sem converter separadores. Para "data" use o vencimento no formato YYYY-MM-DD. Retorne APENAS o JSON.
 
 Texto do documento:
 ${text.slice(0, 4000)}`,
       },
     ],
   })
-  return parseJson<ExtractedBill>(content)
+  const bill = parseJson<Omit<ExtractedBill, "valor"> & { valor: unknown }>(content)
+  return { ...bill, valor: parseValorBR(bill.valor) }
 }
 
 export async function analyzeFinances(data: string): Promise<AnalysisResult> {
@@ -152,7 +163,7 @@ export async function extractTransactionsFromText(
   "transacoes": [
     {
       "descricao": "descrição da transação",
-      "valor": 99.90,
+      "valor": "11,90",
       "tipo": "DESPESA",
       "data": "2026-03-01"
     }
@@ -160,7 +171,7 @@ export async function extractTransactionsFromText(
 }
 Regras:
 - "tipo": use "RECEITA" para entradas/créditos, "DESPESA" para saídas/débitos
-- "valor": sempre positivo
+- "valor": STRING copiada exatamente como aparece no extrato (ex: "11,90", "1.234,56"); NÃO converta separadores
 - "data": formato YYYY-MM-DD; use null se não encontrar
 - Inclua TODAS as transações visíveis no texto
 Retorne APENAS o JSON.
@@ -170,10 +181,7 @@ ${text.slice(0, 8000)}`,
       },
     ],
   })
-  const result = parseJson<{ transacoes: TransacaoBruta[] }>(
-    content
-  )
-  return result.transacoes ?? []
+  return normalizeTransacoes(content)
 }
 
 export async function extractTransactionsFromImage(
@@ -197,23 +205,20 @@ export async function extractTransactionsFromImage(
   "transacoes": [
     {
       "descricao": "descrição",
-      "valor": 99.90,
+      "valor": "11,90",
       "tipo": "DESPESA",
       "data": "2026-03-01"
     }
   ]
 }
-Regras: "tipo" RECEITA para entradas, DESPESA para saídas; "valor" sempre positivo; "data" YYYY-MM-DD ou null.
+Regras: "tipo" RECEITA para entradas, DESPESA para saídas; "valor" STRING copiada exatamente como aparece na imagem (ex: "11,90"), sem converter separadores; "data" YYYY-MM-DD ou null.
 Retorne APENAS o JSON.`,
           },
         ],
       },
     ],
   })
-  const result = parseJson<{ transacoes: TransacaoBruta[] }>(
-    content
-  )
-  return result.transacoes ?? []
+  return normalizeTransacoes(content)
 }
 
 export async function categorizeTransactions(

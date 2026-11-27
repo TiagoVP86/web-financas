@@ -141,15 +141,25 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Totais calculados em código — não confiar na aritmética do LLM.
+    const somar = (tipo: "RECEITA" | "DESPESA") =>
+      Math.round(
+        analise.transacoes
+          .filter((t) => t.tipo === tipo)
+          .reduce((s, t) => s + Number(t.valor), 0) * 100
+      ) / 100
+    const totalReceitas = somar("RECEITA")
+    const totalDespesas = somar("DESPESA")
+
     const response: AnaliseExtratoResponse = {
       id: analise.id,
       nomeArquivo: analise.nomeArquivo,
       arquivoUrl: analise.arquivoUrl,
       resumo: analise.resumo,
       periodo: categorizacao.periodo,
-      totalReceitas: categorizacao.totalReceitas,
-      totalDespesas: categorizacao.totalDespesas,
-      saldo: categorizacao.saldo,
+      totalReceitas,
+      totalDespesas,
+      saldo: Math.round((totalReceitas - totalDespesas) * 100) / 100,
       porCategoria: Array.from(porCategoriaAcc.values()),
       transacoes: analise.transacoes.map((t) => ({
         id: t.id,
