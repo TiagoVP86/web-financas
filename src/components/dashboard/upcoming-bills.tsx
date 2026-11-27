@@ -1,9 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CalendarClock } from "lucide-react"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import Link from "next/link"
+import { formatDataCalendario } from "@/lib/datas"
 
 interface Bill {
   id: string
@@ -63,7 +62,7 @@ export function UpcomingBills({ bills }: UpcomingBillsProps) {
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{bill.descricao}</p>
                       <p className="text-xs text-muted-foreground">
-                        {format(new Date(bill.data), "dd MMM", { locale: ptBR })}
+                        {formatDataCalendario(bill.data, "dd MMM")}
                         {bill.categoria && ` · ${bill.categoria.nome}`}
                       </p>
                     </div>

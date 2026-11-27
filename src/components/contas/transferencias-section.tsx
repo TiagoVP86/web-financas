@@ -3,8 +3,6 @@
 import { useState } from "react"
 import { ArrowRight, ArrowLeftRight, Trash2 } from "lucide-react"
 import { toast } from "sonner"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -19,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { TransferenciaModal } from "./transferencia-modal"
 import { deletarTransferencia } from "@/actions/transferencia"
+import { formatDataCalendario } from "@/lib/datas"
 
 interface TransferenciaItem {
   id: string
@@ -97,7 +96,7 @@ export function TransferenciasSection({ transferencias: initial, contas }: Props
                   <span className="truncate">{t.contaDestino.nome}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {format(new Date(t.data), "dd/MM/yyyy", { locale: ptBR })}
+                  {formatDataCalendario(t.data, "dd/MM/yyyy")}
                   {t.descricao && t.descricao !== "Transferência" && ` · ${t.descricao}`}
                 </p>
               </div>

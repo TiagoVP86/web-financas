@@ -2,6 +2,7 @@ import Groq from "groq-sdk"
 import type { TransacaoBruta } from "@/types/extrato"
 import { parseValorBR, parseValorBRComSinal } from "./valor-br"
 import type { DadosFatura } from "./conferencia-fatura"
+import { parseDataBR } from "./datas"
 
 let _groq: Groq | null = null
 function getGroq(): Groq {
@@ -84,7 +85,7 @@ export interface ExtracaoExtrato {
 export function normalizeExtracao(content: string): ExtracaoExtrato {
   const result = parseJson<{
     transacoes?: Array<Omit<TransacaoBruta, "valor"> & { valor: unknown }>
-    fatura?: { totalFatura?: unknown; saldoAnterior?: unknown } | null
+    fatura?: { totalFatura?: unknown; saldoAnterior?: unknown; vencimento?: unknown } | null
   }>(content)
 
   const transacoes = (result.transacoes ?? []).flatMap((t) => {
@@ -96,12 +97,16 @@ export function normalizeExtracao(content: string): ExtracaoExtrato {
   const fatura =
     totalFatura === null
       ? null
-      : { totalFatura, saldoAnterior: parseValorBRComSinal(result.fatura?.saldoAnterior) ?? 0 }
+      : {
+          totalFatura,
+          saldoAnterior: parseValorBRComSinal(result.fatura?.saldoAnterior) ?? 0,
+          vencimento: parseDataBR(result.fatura?.vencimento),
+        }
 
   return { transacoes, fatura }
 }
 
-const INSTRUCAO_FATURA = `- "fatura": SOMENTE se for fatura de cartão de crédito, preencha com STRINGS copiadas do documento: "totalFatura" = valor total da fatura / total a pagar (ex: "846,08"); "saldoAnterior" = total da fatura anterior, com sinal (ex: "2.523,42"), ou null se não houver. Em extrato de conta corrente, use "fatura": null.`
+const INSTRUCAO_FATURA = `- "fatura": SOMENTE se for fatura de cartão de crédito, preencha com STRINGS copiadas do documento: "totalFatura" = valor total da fatura / total a pagar (ex: "846,08"); "saldoAnterior" = total da fatura anterior, com sinal (ex: "2.523,42"), ou null se não houver; "vencimento" = data de vencimento da fatura como aparece (ex: "20/01/2026"). Em extrato de conta corrente, use "fatura": null.`
 
 function parseJson<T>(text: string): T {
   const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
@@ -189,7 +194,7 @@ export async function extractTransactionsFromText(
       "data": "2026-03-01"
     }
   ],
-  "fatura": { "totalFatura": "846,08", "saldoAnterior": "2.523,42" }
+  "fatura": { "totalFatura": "846,08", "saldoAnterior": "2.523,42", "vencimento": "20/01/2026" }
 }
 Regras:
 - O texto pode ser extrato de conta ou fatura de cartão de crédito. Colunas de uma mesma linha vêm separadas por " | " (ex: "18/02/25 | AMAZON MUSIC | -11,90 | 0,00").
@@ -234,7 +239,7 @@ export async function extractTransactionsFromImage(
       "data": "2026-03-01"
     }
   ],
-  "fatura": { "totalFatura": "846,08", "saldoAnterior": "2.523,42" }
+  "fatura": { "totalFatura": "846,08", "saldoAnterior": "2.523,42", "vencimento": "20/01/2026" }
 }
 ${INSTRUCAO_FATURA}
 Regras: "tipo" RECEITA para entradas, DESPESA para saídas (em fatura de cartão: positivo = compra/DESPESA, negativo = estorno/crédito/RECEITA); use só a coluna em R$, ignore US$; não inclua subtotais, totais nem resumo; "valor" STRING copiada exatamente como aparece na imagem (ex: "11,90"), sem converter separadores; "data" YYYY-MM-DD ou null.

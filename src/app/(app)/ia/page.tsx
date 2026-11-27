@@ -7,9 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Sparkles, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { redirect } from "next/navigation"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { subMonths, addMonths, startOfMonth } from "date-fns"
+import { formatDataCalendario } from "@/lib/datas"
 
 const statusLabel: Record<string, string> = {
   PENDENTE: "Pendente",
@@ -96,7 +95,7 @@ export default async function IAPage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
-                        {format(new Date(l.data), "dd/MM/yy", { locale: ptBR })}
+                        {formatDataCalendario(l.data, "dd/MM/yy")}
                       </span>
                       <span
                         className={cn("text-sm font-bold", l.tipo === "RECEITA" ? "text-receita" : "text-despesa")}
@@ -137,7 +136,7 @@ export default async function IAPage() {
                           </div>
                         </td>
                         <td className="px-3 py-2 text-muted-foreground tabular-nums">
-                          {format(new Date(l.data), "dd/MM/yy", { locale: ptBR })}
+                          {formatDataCalendario(l.data, "dd/MM/yy")}
                         </td>
                         <td className={cn("px-3 py-2 text-right font-semibold tabular-nums", l.tipo === "RECEITA" ? "text-receita" : "text-despesa")}>
                           {l.tipo === "RECEITA" ? "+" : "-"}{fmt(Number(l.valor))}

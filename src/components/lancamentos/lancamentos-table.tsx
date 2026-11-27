@@ -2,8 +2,6 @@
 
 import { StatusBadge } from "./status-badge"
 import { LancamentoCard } from "./lancamento-card"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -22,6 +20,7 @@ import { toast } from "sonner"
 import { marcarComoPago, deletarLancamento } from "@/actions/lancamentos"
 import Link from "next/link"
 import { CategoryIcon } from "@/components/ui/category-icon"
+import { formatDataCalendario } from "@/lib/datas"
 
 type Status = "PENDENTE" | "PAGO" | "VENCIDO" | "REALIZADO"
 type Tipo = "RECEITA" | "DESPESA"
@@ -123,7 +122,7 @@ export function LancamentosTable({ lancamentos }: LancamentosTableProps) {
                   )}
                 </td>
                 <td className="px-4 py-3 text-muted-foreground tabular-nums">
-                  {format(new Date(l.data), "dd/MM/yyyy", { locale: ptBR })}
+                  {formatDataCalendario(l.data, "dd/MM/yyyy")}
                 </td>
                 <td className={cn("px-4 py-3 text-right font-semibold tabular-nums", l.tipo === "RECEITA" ? "text-receita" : "text-despesa")}>
                   {l.tipo === "RECEITA" ? "+" : "-"}{fmt(l.valor)}

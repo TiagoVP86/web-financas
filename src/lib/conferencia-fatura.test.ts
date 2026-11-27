@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { conferirFatura } from "./conferencia-fatura"
+import { aplicarDataFatura, conferirFatura } from "./conferencia-fatura"
 
 // Lançamentos reais da fatura XP venc. 20/01/2026 (total R$ 846,08, anterior R$ 2.523,42)
 const D = (valor: number) => ({ valor, tipo: "DESPESA" as const })
@@ -15,7 +15,7 @@ const faturaXP = [
 
 describe("conferirFatura", () => {
   it("fatura XP completa confere", () => {
-    const c = conferirFatura({ totalFatura: 846.08, saldoAnterior: 2523.42 }, faturaXP)
+    const c = conferirFatura({ totalFatura: 846.08, saldoAnterior: 2523.42, vencimento: "2026-01-20" }, faturaXP)
     expect(c.despesas).toBe(965.08)
     expect(c.creditos).toBe(2642.42)
     expect(c.calculado).toBe(846.08)
@@ -25,8 +25,26 @@ describe("conferirFatura", () => {
 
   it("lançamento faltando aparece na diferença", () => {
     const semApple = faturaXP.filter((t) => t.valor !== 39.9)
-    const c = conferirFatura({ totalFatura: 846.08, saldoAnterior: 2523.42 }, semApple)
+    const c = conferirFatura({ totalFatura: 846.08, saldoAnterior: 2523.42, vencimento: "2026-01-20" }, semApple)
     expect(c.confere).toBe(false)
     expect(c.diferenca).toBe(39.9)
+  })
+})
+
+describe("aplicarDataFatura", () => {
+  it("move para o vencimento e guarda a data da compra na descrição", () => {
+    const r = aplicarDataFatura(
+      [
+        { descricao: "PRODUTOS GLOBO - Parcela 6/12", data: "2025-07-26" },
+        { descricao: "SEM DATA", data: null },
+        { descricao: "NO DIA", data: "2026-01-20" },
+      ],
+      "2026-01-20"
+    )
+    expect(r).toEqual([
+      { descricao: "PRODUTOS GLOBO - Parcela 6/12 (compra 26/07/25)", data: "2026-01-20" },
+      { descricao: "SEM DATA", data: "2026-01-20" },
+      { descricao: "NO DIA", data: "2026-01-20" },
+    ])
   })
 })

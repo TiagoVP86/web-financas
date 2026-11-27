@@ -9,7 +9,7 @@ import {
   categorizeTransactions,
 } from "@/lib/groq"
 import { flagDuplicates } from "@/lib/dedup"
-import { conferirFatura, type DadosFatura } from "@/lib/conferencia-fatura"
+import { aplicarDataFatura, conferirFatura, type DadosFatura } from "@/lib/conferencia-fatura"
 import { PdfPasswordError } from "@/lib/pdf-password"
 import type { AnaliseExtratoResponse } from "@/types/extrato"
 
@@ -63,8 +63,10 @@ export async function POST(req: NextRequest) {
         parseResult.kind === "text"
           ? await extractTransactionsFromText(parseResult.text)
           : await extractTransactionsFromImage(parseResult.base64, parseResult.mimeType)
-      transacoesBrutas = extracao.transacoes
       dadosFatura = extracao.fatura
+      transacoesBrutas = dadosFatura?.vencimento
+        ? aplicarDataFatura(extracao.transacoes, dadosFatura.vencimento)
+        : extracao.transacoes
     }
 
     if (transacoesBrutas.length === 0) {

@@ -1,7 +1,6 @@
 import { db } from "@/lib/db"
 import { addDays, startOfDay } from "date-fns"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import { formatDataCalendario } from "@/lib/datas"
 
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 
@@ -76,7 +75,7 @@ export async function gerarNotificacoes(userId?: string) {
           tipo: "VENCIMENTO_PROXIMO" as const,
           lancamentoId: l.id,
           titulo: "Vencimento próximo",
-          mensagem: `${l.descricao} · ${fmt(Number(l.valor))} · vence em ${format(new Date(l.data), "dd/MM", { locale: ptBR })}`,
+          mensagem: `${l.descricao} · ${fmt(Number(l.valor))} · vence em ${formatDataCalendario(l.data, "dd/MM")}`,
         })),
       })
     }
@@ -88,7 +87,7 @@ export async function gerarNotificacoes(userId?: string) {
           tipo: "VENCIDO" as const,
           lancamentoId: l.id,
           titulo: "Conta vencida",
-          mensagem: `${l.descricao} · ${fmt(Number(l.valor))} · venceu em ${format(new Date(l.data), "dd/MM", { locale: ptBR })}`,
+          mensagem: `${l.descricao} · ${fmt(Number(l.valor))} · venceu em ${formatDataCalendario(l.data, "dd/MM")}`,
         })),
       })
     }
@@ -97,8 +96,8 @@ export async function gerarNotificacoes(userId?: string) {
     const total = newProximos.length + newVencidos.length
     if (total > 0) {
       const rows = [
-        ...newVencidos.map((l) => `<tr><td style="color:#ef4444">Vencida</td><td>${l.descricao}</td><td>${fmt(Number(l.valor))}</td><td>${format(new Date(l.data), "dd/MM/yyyy", { locale: ptBR })}</td></tr>`),
-        ...newProximos.map((l) => `<tr><td style="color:#f97316">Próxima</td><td>${l.descricao}</td><td>${fmt(Number(l.valor))}</td><td>${format(new Date(l.data), "dd/MM/yyyy", { locale: ptBR })}</td></tr>`),
+        ...newVencidos.map((l) => `<tr><td style="color:#ef4444">Vencida</td><td>${l.descricao}</td><td>${fmt(Number(l.valor))}</td><td>${formatDataCalendario(l.data, "dd/MM/yyyy")}</td></tr>`),
+        ...newProximos.map((l) => `<tr><td style="color:#f97316">Próxima</td><td>${l.descricao}</td><td>${fmt(Number(l.valor))}</td><td>${formatDataCalendario(l.data, "dd/MM/yyyy")}</td></tr>`),
       ].join("")
 
       const html = `

@@ -1,8 +1,6 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { AnaliseExtratoResponse, SelecaoImportar, TransacaoExtratoItem } from "@/types/extrato"
+import { formatDataCalendario } from "@/lib/datas"
 
 interface TransacoesTableProps {
   transacoes: TransacaoExtratoItem[]
@@ -150,7 +149,7 @@ export function TransacoesTable({
                       />
                     </td>
                     <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">
-                      {format(new Date(t.data), "dd/MM/yy", { locale: ptBR })}
+                      {formatDataCalendario(t.data, "dd/MM/yy")}
                     </td>
                     <td className="px-3 py-2">
                       <span className={t.tipo === "RECEITA" ? "text-receita" : "text-despesa"}>

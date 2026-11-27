@@ -13,8 +13,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { Copy, Check, Trash2, Pencil, ArrowUpRight, ArrowDownRight, Landmark } from "lucide-react"
 import { toast } from "sonner"
 import { marcarComoPago, deletarLancamento } from "@/actions/lancamentos"
@@ -22,6 +20,7 @@ import Link from "next/link"
 import { StatusBadge } from "./status-badge"
 import type { LancamentoRow } from "./lancamentos-table"
 import { CategoryIcon } from "@/components/ui/category-icon"
+import { formatDataCalendario } from "@/lib/datas"
 
 interface LancamentoCardProps {
   lancamento: LancamentoRow
@@ -56,7 +55,7 @@ export function LancamentoCard({ lancamento: l }: LancamentoCardProps) {
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium leading-snug">{l.descricao}</p>
           <p className="text-xs text-muted-foreground">
-            {format(new Date(l.data), "dd/MM/yyyy", { locale: ptBR })}
+            {formatDataCalendario(l.data, "dd/MM/yyyy")}
           </p>
         </div>
         <span

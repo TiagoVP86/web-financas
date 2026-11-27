@@ -33,17 +33,17 @@ describe("normalizeExtracao", () => {
           { descricao: "AMAZON MUSIC", valor: "-11,90", tipo: "RECEITA", data: "2025-02-18" },
           { descricao: "CLUBE LIVELO", valor: "102,37", tipo: "DESPESA", data: "2025-10-02" },
         ],
-        fatura: { totalFatura: "846,08", saldoAnterior: "-119,00" },
+        fatura: { totalFatura: "846,08", saldoAnterior: "-119,00", vencimento: "20/01/2026" },
       })
     )
     expect(r.transacoes.map((t) => t.valor)).toEqual([11.9, 102.37])
-    expect(r.fatura).toEqual({ totalFatura: 846.08, saldoAnterior: -119 })
+    expect(r.fatura).toEqual({ totalFatura: 846.08, saldoAnterior: -119, vencimento: "2026-01-20" })
   })
 
   it("extrato de conta: fatura null; saldoAnterior ausente vira 0", async () => {
     const { normalizeExtracao } = await import("./groq")
     expect(normalizeExtracao('{"transacoes":[],"fatura":null}').fatura).toBeNull()
     expect(normalizeExtracao('{"transacoes":[],"fatura":{"totalFatura":"10,00","saldoAnterior":null}}').fatura)
-      .toEqual({ totalFatura: 10, saldoAnterior: 0 })
+      .toEqual({ totalFatura: 10, saldoAnterior: 0, vencimento: null })
   })
 })
