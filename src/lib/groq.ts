@@ -22,14 +22,63 @@ export interface AnalysisResult {
   sugestoes: string[]
 }
 
+// Cadeias de modelos: primário → reserva. Override via env (lista separada por vírgula)
+// para trocar modelo depreciado sem novo deploy de código.
+// Ver https://console.groq.com/docs/deprecations
+function modelChain(envVar: string, defaults: string[]): string[] {
+  const fromEnv = process.env[envVar]
+    ?.split(",")
+    .map((m) => m.trim())
+    .filter(Boolean)
+  return fromEnv && fromEnv.length > 0 ? fromEnv : defaults
+}
+
+export const TEXT_MODELS = () =>
+  modelChain("GROQ_TEXT_MODELS", ["openai/gpt-oss-120b", "openai/gpt-oss-20b"])
+export const FAST_MODELS = () =>
+  modelChain("GROQ_FAST_MODELS", ["openai/gpt-oss-20b", "openai/gpt-oss-120b"])
+export const VISION_MODELS = () =>
+  modelChain("GROQ_VISION_MODELS", ["qwen/qwen3.8-27b"])
+
+/** Erros em que vale tentar o próximo modelo da cadeia. */
+export function isRetryableModelError(err: unknown): boolean {
+  const status = (err as { status?: number })?.status
+  if (status === undefined) return false
+  return status === 404 || status === 400 || status === 429 || status >= 500
+}
+
+type CompletionParams = Omit<
+  Parameters<Groq["chat"]["completions"]["create"]>[0],
+  "model" | "stream"
+>
+
+async function complete(models: string[], params: CompletionParams): Promise<string> {
+  let lastErr: unknown
+  for (const model of models) {
+    try {
+      const completion = await getGroq().chat.completions.create({
+        ...params,
+        model,
+        stream: false,
+        response_format: { type: "json_object" },
+      })
+      return completion.choices[0]?.message.content ?? "{}"
+    } catch (err) {
+      lastErr = err
+      if (!isRetryableModelError(err)) throw err
+      console.warn(`[groq] modelo ${model} falhou, tentando reserva:`, (err as Error).message)
+    }
+  }
+  throw lastErr
+}
+
 function parseJson<T>(text: string): T {
   const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
   return JSON.parse(cleaned) as T
 }
 
 export async function extractBillFromText(text: string): Promise<ExtractedBill> {
-  const completion = await getGroq().chat.completions.create({
-    model: "llama-3.1-8b-instant",
+  const content = await complete(FAST_MODELS(), {
     temperature: 0,
     messages: [
       {
@@ -49,12 +98,11 @@ ${text.slice(0, 4000)}`,
       },
     ],
   })
-  return parseJson<ExtractedBill>(completion.choices[0].message.content ?? "{}")
+  return parseJson<ExtractedBill>(content)
 }
 
 export async function analyzeFinances(data: string): Promise<AnalysisResult> {
-  const completion = await getGroq().chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+  const content = await complete(TEXT_MODELS(), {
     temperature: 0.7,
     messages: [
       {
@@ -75,7 +123,7 @@ Retorne APENAS o JSON.`,
       },
     ],
   })
-  return parseJson<AnalysisResult>(completion.choices[0].message.content ?? "{}")
+  return parseJson<AnalysisResult>(content)
 }
 
 export interface CategorizacaoResult {
@@ -94,8 +142,7 @@ export interface CategorizacaoResult {
 export async function extractTransactionsFromText(
   text: string
 ): Promise<TransacaoBruta[]> {
-  const completion = await getGroq().chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+  const content = await complete(TEXT_MODELS(), {
     temperature: 0,
     messages: [
       {
@@ -124,7 +171,7 @@ ${text.slice(0, 8000)}`,
     ],
   })
   const result = parseJson<{ transacoes: TransacaoBruta[] }>(
-    completion.choices[0].message.content ?? "{}"
+    content
   )
   return result.transacoes ?? []
 }
@@ -133,8 +180,7 @@ export async function extractTransactionsFromImage(
   base64: string,
   mimeType: string
 ): Promise<TransacaoBruta[]> {
-  const completion = await getGroq().chat.completions.create({
-    model: "llama-3.2-11b-vision-preview",
+  const content = await complete(VISION_MODELS(), {
     temperature: 0,
     messages: [
       {
@@ -165,7 +211,7 @@ Retorne APENAS o JSON.`,
     ],
   })
   const result = parseJson<{ transacoes: TransacaoBruta[] }>(
-    completion.choices[0].message.content ?? "{}"
+    content
   )
   return result.transacoes ?? []
 }
@@ -174,8 +220,7 @@ export async function categorizeTransactions(
   transacoes: TransacaoBruta[],
   categorias: { id: string; nome: string }[]
 ): Promise<CategorizacaoResult> {
-  const completion = await getGroq().chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+  const content = await complete(TEXT_MODELS(), {
     temperature: 0.3,
     messages: [
       {
@@ -223,6 +268,6 @@ Retorne APENAS o JSON.`,
     ],
   })
   return parseJson<CategorizacaoResult>(
-    completion.choices[0].message.content ?? "{}"
+    content
   )
 }
