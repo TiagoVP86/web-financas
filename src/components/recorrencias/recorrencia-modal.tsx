@@ -31,6 +31,12 @@ const MESES_NOMES = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ]
 
+// base-ui Select só mostra o rótulo no gatilho com o mapa value → label; sem ele exibe o valor cru
+const TIPO_ITEMS = { RECEITA: "Receita", DESPESA: "Despesa" }
+const FREQUENCIA_ITEMS = { SEMANAL: "Semanal", QUINZENAL: "Quinzenal", MENSAL: "Mensal", ANUAL: "Anual" }
+const DIA_SEMANA_ITEMS = Object.fromEntries(DIAS_SEMANA.map((d, i) => [String(i), d]))
+const MES_ITEMS = Object.fromEntries(MESES_NOMES.map((m, i) => [String(i + 1), m]))
+
 interface Categoria {
   id: string
   nome: string
@@ -160,7 +166,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
             </div>
             <div className="space-y-1">
               <Label>Tipo</Label>
-              <Select value={tipo} onValueChange={(v) => setTipo(v as "RECEITA" | "DESPESA")}>
+              <Select items={TIPO_ITEMS} value={tipo} onValueChange={(v) => setTipo(v as "RECEITA" | "DESPESA")}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="RECEITA">Receita</SelectItem>
@@ -173,7 +179,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label>Frequência</Label>
-              <Select value={frequencia} onValueChange={handleFrequenciaChange}>
+              <Select items={FREQUENCIA_ITEMS} value={frequencia} onValueChange={handleFrequenciaChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="SEMANAL">Semanal</SelectItem>
@@ -188,6 +194,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
               <div className="space-y-1">
                 <Label>Dia da semana</Label>
                 <Select
+                  items={DIA_SEMANA_ITEMS}
                   value={String(diaVencimento)}
                   onValueChange={(v) => v != null && setDiaVencimento(parseInt(v, 10))}
                 >
@@ -218,7 +225,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
           {frequencia === "ANUAL" && (
             <div className="space-y-1">
               <Label>Mês</Label>
-              <Select value={String(mes)} onValueChange={(v) => v != null && setMes(parseInt(v, 10))}>
+              <Select items={MES_ITEMS} value={String(mes)} onValueChange={(v) => v != null && setMes(parseInt(v, 10))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {MESES_NOMES.map((m, i) => (
@@ -233,6 +240,7 @@ export function RecorrenciaModal({ open, onClose, onSaved, recorrencia, categori
             <div className="space-y-1">
               <Label>Categoria</Label>
               <Select
+                items={{ none: "Sem categoria", ...Object.fromEntries(categorias.map((c) => [c.id, c.nome])) }}
                 value={categoriaId || "none"}
                 onValueChange={(v) => v != null && setCategoriaId(v === "none" ? "" : v)}
               >

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
@@ -55,6 +55,12 @@ export function TransacoesTable({
       return next
     })
   }
+
+  // base-ui Select só mostra o rótulo no gatilho com o mapa value → label; sem ele exibe o id
+  const categoriaItems = useMemo(
+    () => ({ none: "Sem categoria", ...Object.fromEntries(categorias.map((c) => [c.id, c.nome])) }),
+    [categorias]
+  )
 
   function setCategoriaId(transacaoId: string, categoriaId: string) {
     setOverrides((prev) => ({
@@ -178,6 +184,7 @@ export function TransacoesTable({
                         </div>
                       ) : (
                         <Select
+                          items={categoriaItems}
                           value={catId ?? "none"}
                           onValueChange={(v) =>
                             v === "none"
